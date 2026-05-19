@@ -1,0 +1,195 @@
+{
+  "common": {
+    "appName": "AI Agent Academy",
+    "tagline": "Master AI Agent Development — From Zero to Production",
+    "login": "Log In",
+    "signup": "Sign Up",
+    "logout": "Log Out",
+    "dashboard": "Dashboard",
+    "courses": "Courses",
+    "profile": "Profile",
+    "settings": "Settings",
+    "continue": "Continue",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "search": "Search",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode"
+  },
+  "landing": {
+    "hero": {
+      "title": "Learn to Build AI Agents",
+      "subtitle": "A comprehensive course taking you from fundamentals to deploying production-ready AI agents. Available in 25+ languages.",
+      "cta": "Start Learning Free",
+      "ctaSecondary": "View Curriculum"
+    },
+    "features": {
+      "title": "Why Learn With Us",
+      "interactive": {
+        "title": "Interactive Code Labs",
+        "description": "Write and run Python code directly in your browser with pre-configured AI environments."
+      },
+      "quizzes": {
+        "title": "Reinforced Learning",
+        "description": "Every lesson ends with a quiz. Adaptive difficulty ensures you truly understand each concept."
+      },
+      "certificate": {
+        "title": "Verified Certificate",
+        "description": "Earn a verifiable e-certificate upon completion. Share on LinkedIn and add to your resume."
+      },
+      "global": {
+        "title": "Available Worldwide",
+        "description": "Learn in your native language. 25+ languages supported with culturally adapted content."
+      },
+      "projects": {
+        "title": "Real-World Projects",
+        "description": "Build actual AI agents — from customer support bots to multi-agent systems."
+      },
+      "community": {
+        "title": "Global Community",
+        "description": "Connect with learners worldwide. Discussion forums, study groups, and peer reviews."
+      }
+    },
+    "modules": {
+      "title": "Course Modules",
+      "module1": {
+        "title": "Introduction to AI Agents",
+        "description": "Understand what AI agents are, their types, components, and real-world applications."
+      },
+      "module2": {
+        "title": "AI & Machine Learning Fundamentals",
+        "description": "Core AI concepts, ML paradigms, LLMs, embeddings, and the agent ecosystem."
+      },
+      "module3": {
+        "title": "Designing & Architecting Agents",
+        "description": "Architecture patterns, goal definition, memory systems, and reasoning flows."
+      },
+      "module4": {
+        "title": "Implementing AI Agents",
+        "description": "Hands-on building with Python, LangChain, LlamaIndex, and tool integration."
+      },
+      "module5": {
+        "title": "Advanced Concepts",
+        "description": "Multi-agent systems, safety, ethics, deployment, and production scaling."
+      },
+      "module6": {
+        "title": "Project-Based Learning",
+        "description": "Build real AI agents and complete a capstone project for certification."
+      }
+    },
+    "stats": {
+      "languages": "25+ Languages",
+      "modules": "6 Modules",
+      "lessons": "30+ Lessons",
+      "projects": "4 Projects"
+    },
+    "pricing": {
+      "title": "Accessible to Everyone",
+      "description": "Pricing adjusted to your region's purchasing power. Scholarships available.",
+      "free": {
+        "title": "Free",
+        "price": "$0",
+        "features": ["Module 1 complete", "Partial Module 2", "Community access", "Code playground"]
+      },
+      "standard": {
+        "title": "Standard",
+        "price": "$49–99",
+        "features": ["All 6 modules", "All quizzes & exam", "E-certificate", "Project reviews", "Forum access"]
+      },
+      "premium": {
+        "title": "Premium",
+        "price": "$149–199",
+        "features": ["Everything in Standard", "1-on-1 mentoring", "GPU compute access", "Priority support", "Career guidance"]
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Welcome Back",
+    "loginSubtitle": "Log in to continue your learning journey",
+    "signupTitle": "Create Your Account",
+    "signupSubtitle": "Join learners from around the world",
+    "email": "Email address",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "name": "Full name",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "orContinueWith": "Or continue with",
+    "google": "Continue with Google",
+    "github": "Continue with GitHub"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}",
+    "progress": "Your Progress",
+    "overallProgress": "Overall Completion",
+    "currentModule": "Current Module",
+    "nextLesson": "Next Lesson",
+    "quizzesPassed": "Quizzes Passed",
+    "streak": "Day Streak",
+    "continueButton": "Continue Learning",
+    "recentActivity": "Recent Activity",
+    "achievements": "Achievements"
+  },
+  "course": {
+    "module": "Module {number}",
+    "lesson": "Lesson {number}",
+    "duration": "Duration",
+    "objectives": "Learning Objectives",
+    "startLesson": "Start Lesson",
+    "markComplete": "Mark as Complete",
+    "takeQuiz": "Take Quiz",
+    "locked": "Complete previous lessons to unlock",
+    "completed": "Completed"
+  },
+  "quiz": {
+    "title": "Quiz: {lesson}",
+    "question": "Question {current} of {total}",
+    "submit": "Submit Answer",
+    "next": "Next Question",
+    "finish": "Finish Quiz",
+    "result": "Quiz Result",
+    "passed": "Congratulations! You passed!",
+    "failed": "Not quite. Review the material and try again.",
+    "score": "Your Score: {score}%",
+    "passingScore": "Passing Score: {score}%",
+    "explanation": "Explanation",
+    "tryAgain": "Try Again",
+    "reviewAnswers": "Review Answers",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "certificate": {
+    "title": "Your Certificate",
+    "earned": "Certificate Earned!",
+    "level": "Level: {level}",
+    "download": "Download PDF",
+    "share": "Share",
+    "verify": "Verify Certificate",
+    "linkedin": "Add to LinkedIn",
+    "notEarned": "Complete all requirements to earn your certificate",
+    "requirements": {
+      "title": "Requirements",
+      "quizzes": "Pass all module quizzes",
+      "exam": "Pass the final exam (70%+)",
+      "capstone": "Complete capstone project"
+    }
+  },
+  "exam": {
+    "title": "Final Assessment",
+    "description": "40 questions covering all modules. 90 minutes. 70% to pass.",
+    "startExam": "Start Exam",
+    "timeRemaining": "Time Remaining",
+    "questionsRemaining": "Questions Remaining: {count}",
+    "submitExam": "Submit Exam",
+    "attemptsRemaining": "Attempts Remaining: {count}"
+  }
+}

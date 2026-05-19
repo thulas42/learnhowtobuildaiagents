@@ -1,0 +1,195 @@
+{
+  "common": {
+    "appName": "AI Agent Academy",
+    "tagline": "Domina el Desarrollo de Agentes de IA — De Cero a Producción",
+    "login": "Iniciar Sesión",
+    "signup": "Registrarse",
+    "logout": "Cerrar Sesión",
+    "dashboard": "Panel",
+    "courses": "Cursos",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "continue": "Continuar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "close": "Cerrar",
+    "search": "Buscar",
+    "language": "Idioma",
+    "darkMode": "Modo Oscuro",
+    "lightMode": "Modo Claro"
+  },
+  "landing": {
+    "hero": {
+      "title": "Aprende a Crear Agentes de IA",
+      "subtitle": "Un curso completo que te lleva desde los fundamentos hasta desplegar agentes de IA listos para producción. Disponible en más de 25 idiomas.",
+      "cta": "Comienza Gratis",
+      "ctaSecondary": "Ver Currículo"
+    },
+    "features": {
+      "title": "¿Por Qué Aprender Con Nosotros?",
+      "interactive": {
+        "title": "Laboratorios de Código Interactivos",
+        "description": "Escribe y ejecuta código Python directamente en tu navegador con entornos de IA preconfigurados."
+      },
+      "quizzes": {
+        "title": "Aprendizaje Reforzado",
+        "description": "Cada lección termina con un quiz. La dificultad adaptativa asegura que realmente entiendas cada concepto."
+      },
+      "certificate": {
+        "title": "Certificado Verificado",
+        "description": "Obtén un e-certificado verificable al completar. Compártelo en LinkedIn y agrégalo a tu currículum."
+      },
+      "global": {
+        "title": "Disponible Mundialmente",
+        "description": "Aprende en tu idioma nativo. Más de 25 idiomas soportados con contenido culturalmente adaptado."
+      },
+      "projects": {
+        "title": "Proyectos del Mundo Real",
+        "description": "Construye agentes de IA reales — desde bots de soporte al cliente hasta sistemas multi-agente."
+      },
+      "community": {
+        "title": "Comunidad Global",
+        "description": "Conéctate con estudiantes de todo el mundo. Foros de discusión, grupos de estudio y revisiones entre pares."
+      }
+    },
+    "modules": {
+      "title": "Módulos del Curso",
+      "module1": {
+        "title": "Introducción a los Agentes de IA",
+        "description": "Comprende qué son los agentes de IA, sus tipos, componentes y aplicaciones en el mundo real."
+      },
+      "module2": {
+        "title": "Fundamentos de IA y Machine Learning",
+        "description": "Conceptos básicos de IA, paradigmas de ML, LLMs, embeddings y el ecosistema de agentes."
+      },
+      "module3": {
+        "title": "Diseño y Arquitectura de Agentes",
+        "description": "Patrones de arquitectura, definición de objetivos, sistemas de memoria y flujos de razonamiento."
+      },
+      "module4": {
+        "title": "Implementación de Agentes de IA",
+        "description": "Construcción práctica con Python, LangChain, LlamaIndex e integración de herramientas."
+      },
+      "module5": {
+        "title": "Conceptos Avanzados",
+        "description": "Sistemas multi-agente, seguridad, ética, despliegue y escalado en producción."
+      },
+      "module6": {
+        "title": "Aprendizaje Basado en Proyectos",
+        "description": "Construye agentes de IA reales y completa un proyecto final para la certificación."
+      }
+    },
+    "stats": {
+      "languages": "25+ Idiomas",
+      "modules": "6 Módulos",
+      "lessons": "30+ Lecciones",
+      "projects": "4 Proyectos"
+    },
+    "pricing": {
+      "title": "Accesible para Todos",
+      "description": "Precios ajustados al poder adquisitivo de tu región. Becas disponibles.",
+      "free": {
+        "title": "Gratis",
+        "price": "$0",
+        "features": ["Módulo 1 completo", "Módulo 2 parcial", "Acceso a la comunidad", "Playground de código"]
+      },
+      "standard": {
+        "title": "Estándar",
+        "price": "$49",
+        "features": ["Los 6 módulos", "Todos los quizzes y examen", "E-certificado", "Revisión de proyectos", "Acceso al foro"]
+      },
+      "premium": {
+        "title": "Premium",
+        "price": "$149",
+        "features": ["Todo en Estándar", "Mentoría 1 a 1", "Acceso a GPU", "Soporte prioritario", "Orientación profesional"]
+      }
+    }
+  },
+  "auth": {
+    "loginTitle": "Bienvenido de Vuelta",
+    "loginSubtitle": "Inicia sesión para continuar tu aprendizaje",
+    "signupTitle": "Crea Tu Cuenta",
+    "signupSubtitle": "Únete a estudiantes de todo el mundo",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "name": "Nombre completo",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "orContinueWith": "O continúa con",
+    "google": "Continuar con Google",
+    "github": "Continuar con GitHub"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido de vuelta, {name}",
+    "progress": "Tu Progreso",
+    "overallProgress": "Progreso General",
+    "currentModule": "Módulo Actual",
+    "nextLesson": "Siguiente Lección",
+    "quizzesPassed": "Quizzes Aprobados",
+    "streak": "Racha",
+    "continueButton": "Continuar Aprendiendo",
+    "recentActivity": "Actividad Reciente",
+    "achievements": "Logros"
+  },
+  "course": {
+    "module": "Módulo {number}",
+    "lesson": "Lección {number}",
+    "duration": "Duración",
+    "objectives": "Objetivos de Aprendizaje",
+    "startLesson": "Iniciar Lección",
+    "markComplete": "Marcar como Completada",
+    "takeQuiz": "Tomar Quiz",
+    "locked": "Completa las lecciones anteriores para desbloquear",
+    "completed": "Completado"
+  },
+  "quiz": {
+    "title": "Quiz: {lesson}",
+    "question": "Pregunta {current} de {total}",
+    "submit": "Enviar Respuesta",
+    "next": "Siguiente Pregunta",
+    "finish": "Finalizar Quiz",
+    "result": "Resultado del Quiz",
+    "passed": "¡Felicidades! ¡Aprobaste!",
+    "failed": "No fue suficiente. Revisa el material e intenta de nuevo.",
+    "score": "Tu Puntuación: {score}%",
+    "passingScore": "Puntuación para Aprobar: {score}%",
+    "explanation": "Explicación",
+    "tryAgain": "Intentar de Nuevo",
+    "reviewAnswers": "Revisar Respuestas",
+    "correct": "Correcto",
+    "incorrect": "Incorrecto"
+  },
+  "certificate": {
+    "title": "Tu Certificado",
+    "earned": "¡Certificado Obtenido!",
+    "level": "Nivel: {level}",
+    "download": "Descargar PDF",
+    "share": "Compartir",
+    "verify": "Verificar Certificado",
+    "linkedin": "Agregar a LinkedIn",
+    "notEarned": "Completa todos los requisitos para obtener tu certificado",
+    "requirements": {
+      "title": "Requisitos",
+      "quizzes": "Aprobar todos los quizzes de módulos",
+      "exam": "Aprobar el examen final (70%+)",
+      "capstone": "Completar el proyecto final"
+    }
+  },
+  "exam": {
+    "title": "Evaluación Final",
+    "description": "40 preguntas cubriendo todos los módulos. 90 minutos. 70% para aprobar.",
+    "startExam": "Iniciar Examen",
+    "timeRemaining": "Tiempo Restante",
+    "questionsRemaining": "Preguntas Restantes: {count}",
+    "submitExam": "Enviar Examen",
+    "attemptsRemaining": "Intentos Restantes: {count}"
+  }
+}

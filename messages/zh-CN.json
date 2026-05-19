@@ -1,0 +1,137 @@
+{
+  "common": {
+    "appName": "AI智能体学院",
+    "tagline": "掌握AI智能体开发 — 从零到生产部署",
+    "login": "登录",
+    "signup": "注册",
+    "logout": "退出",
+    "dashboard": "仪表板",
+    "courses": "课程",
+    "profile": "个人资料",
+    "settings": "设置",
+    "continue": "继续",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "loading": "加载中...",
+    "error": "出了点问题",
+    "success": "成功",
+    "cancel": "取消",
+    "save": "保存",
+    "close": "关闭",
+    "search": "搜索",
+    "language": "语言",
+    "darkMode": "深色模式",
+    "lightMode": "浅色模式"
+  },
+  "landing": {
+    "hero": {
+      "title": "学习构建AI智能体",
+      "subtitle": "一门全面的课程，带你从基础知识到部署生产级AI智能体。支持25+种语言。",
+      "cta": "免费开始",
+      "ctaSecondary": "查看课程大纲"
+    },
+    "features": {
+      "title": "为什么选择我们",
+      "interactive": { "title": "交互式代码实验室", "description": "直接在浏览器中编写和运行Python代码，预配置AI环境。" },
+      "quizzes": { "title": "强化学习", "description": "每节课后都有测验。自适应难度确保你真正理解每个概念。" },
+      "certificate": { "title": "认证证书", "description": "完成后获得可验证的电子证书。可分享到LinkedIn。" },
+      "global": { "title": "全球可用", "description": "用你的母语学习。支持25+种语言，内容经过文化适配。" },
+      "projects": { "title": "实战项目", "description": "构建真实的AI智能体 — 从客服机器人到多智能体系统。" },
+      "community": { "title": "全球社区", "description": "与世界各地的学习者交流。讨论论坛、学习小组和同行评审。" }
+    },
+    "modules": {
+      "title": "课程模块",
+      "module1": { "title": "AI智能体入门", "description": "了解AI智能体是什么、类型、组件和实际应用。" },
+      "module2": { "title": "AI与机器学习基础", "description": "核心AI概念、ML范式、大语言模型、嵌入和智能体生态系统。" },
+      "module3": { "title": "智能体设计与架构", "description": "架构模式、目标定义、记忆系统和推理流程。" },
+      "module4": { "title": "实现AI智能体", "description": "使用Python、LangChain、LlamaIndex进行实践构建。" },
+      "module5": { "title": "高级概念", "description": "多智能体系统、安全、伦理、部署和生产扩展。" },
+      "module6": { "title": "项目实战", "description": "构建真实AI智能体并完成毕业项目以获得认证。" }
+    },
+    "stats": { "languages": "25+种语言", "modules": "6个模块", "lessons": "30+节课", "projects": "4个项目" },
+    "pricing": {
+      "title": "人人可及",
+      "description": "价格根据您所在地区的购买力进行调整。提供奖学金。",
+      "free": { "title": "免费", "price": "¥0", "features": ["模块1完整访问", "模块2部分内容", "社区访问", "代码练习场"] },
+      "standard": { "title": "标准版", "price": "¥349", "features": ["全部6个模块", "所有测验和考试", "电子证书", "项目评审", "论坛访问"] },
+      "premium": { "title": "高级版", "price": "¥999", "features": ["标准版全部内容", "一对一辅导", "GPU计算资源", "优先支持", "职业指导"] }
+    }
+  },
+  "auth": {
+    "loginTitle": "欢迎回来",
+    "loginSubtitle": "登录以继续你的学习之旅",
+    "signupTitle": "创建账户",
+    "signupSubtitle": "加入来自世界各地的学习者",
+    "email": "电子邮箱",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "name": "姓名",
+    "forgotPassword": "忘记密码？",
+    "noAccount": "没有账户？",
+    "hasAccount": "已有账户？",
+    "orContinueWith": "或使用以下方式继续",
+    "google": "使用Google继续",
+    "github": "使用GitHub继续"
+  },
+  "dashboard": {
+    "welcome": "欢迎回来，{name}",
+    "progress": "你的进度",
+    "overallProgress": "总体进度",
+    "currentModule": "当前模块",
+    "nextLesson": "下一课",
+    "quizzesPassed": "已通过测验",
+    "streak": "连续天数",
+    "continueButton": "继续学习",
+    "recentActivity": "最近活动",
+    "achievements": "成就"
+  },
+  "course": {
+    "module": "模块 {number}",
+    "lesson": "第 {number} 课",
+    "duration": "时长",
+    "objectives": "学习目标",
+    "startLesson": "开始课程",
+    "markComplete": "标记完成",
+    "takeQuiz": "参加测验",
+    "locked": "完成前面的课程以解锁",
+    "completed": "已完成"
+  },
+  "quiz": {
+    "title": "测验：{lesson}",
+    "question": "第 {current} 题，共 {total} 题",
+    "submit": "提交答案",
+    "next": "下一题",
+    "finish": "完成测验",
+    "result": "测验结果",
+    "passed": "恭喜！你通过了！",
+    "failed": "未通过。复习材料后再试一次。",
+    "score": "你的得分：{score}%",
+    "passingScore": "及格分数：{score}%",
+    "explanation": "解释",
+    "tryAgain": "再试一次",
+    "reviewAnswers": "查看答案",
+    "correct": "正确",
+    "incorrect": "错误"
+  },
+  "certificate": {
+    "title": "你的证书",
+    "earned": "已获得证书！",
+    "level": "等级：{level}",
+    "download": "下载PDF",
+    "share": "分享",
+    "verify": "验证证书",
+    "linkedin": "添加到LinkedIn",
+    "notEarned": "完成所有要求以获得证书",
+    "requirements": { "title": "要求", "quizzes": "通过所有模块测验", "exam": "通过期末考试（70%+）", "capstone": "完成毕业项目" }
+  },
+  "exam": {
+    "title": "期末评估",
+    "description": "40道题覆盖所有模块。90分钟。70%通过。",
+    "startExam": "开始考试",
+    "timeRemaining": "剩余时间",
+    "questionsRemaining": "剩余题目：{count}",
+    "submitExam": "提交考试",
+    "attemptsRemaining": "剩余尝试次数：{count}"
+  }
+}
