@@ -30,8 +30,10 @@ export const allLessonsMeta: { slug: string; number: string; title: string; modu
   { slug: "module-4/lesson-4.4", number: "4.4", title: "Adding Tools and Function Calling", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
   { slug: "module-4/lesson-4.5", number: "4.5", title: "Building with LangChain", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
   { slug: "module-4/lesson-4.6", number: "4.6", title: "Building with LlamaIndex", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
-  { slug: "module-4/lesson-4.7", number: "4.7", title: "Agent Memory and State Management", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
-  { slug: "module-4/lesson-4.8", number: "4.8", title: "Testing and Debugging Agents", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
+  { slug: "module-4/lesson-4.7", number: "4.7", title: "Building Agents with Claude (Anthropic)", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
+  { slug: "module-4/lesson-4.8", number: "4.8", title: "Claude Tool Use and MCP (Model Context Protocol)", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
+  { slug: "module-4/lesson-4.9", number: "4.9", title: "Agent Memory and State Management", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
+  { slug: "module-4/lesson-4.10", number: "4.10", title: "Testing and Debugging Agents", moduleNumber: 4, moduleTitle: "Implementing AI Agents" },
   // Module 5
   { slug: "module-5/lesson-5.1", number: "5.1", title: "Multi-Agent Systems", moduleNumber: 5, moduleTitle: "Advanced AI Agent Concepts" },
   { slug: "module-5/lesson-5.2", number: "5.2", title: "Agent Communication and Collaboration", moduleNumber: 5, moduleTitle: "Advanced AI Agent Concepts" },

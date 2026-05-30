@@ -20,12 +20,15 @@ export const metadata: Metadata = {
     template: "%s | AI Agent Academy",
   },
   description:
-    "Master AI agent development with our comprehensive course. Build production-ready AI agents using Python, LangChain, LlamaIndex, and CrewAI. 30+ lessons, hands-on projects, and verified certificate. Available in 25+ languages.",
+    "Master AI agent development with our comprehensive course. Build production-ready AI agents using Python, LangChain, LlamaIndex, CrewAI, and Claude (Anthropic). 30+ lessons, hands-on projects, and verified certificate. Available in 25+ languages.",
   keywords: [
     "AI agent course",
     "build AI agents",
     "LangChain tutorial",
     "LlamaIndex course",
+    "Claude AI agents",
+    "Anthropic Claude tutorial",
+    "MCP Model Context Protocol",
     "AI agent development",
     "learn AI agents",
     "AI coding course",
@@ -236,6 +239,7 @@ export default async function LocaleLayout({
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="alternate" type="application/rss+xml" title="AI Agent Academy" href="/api/feed" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
