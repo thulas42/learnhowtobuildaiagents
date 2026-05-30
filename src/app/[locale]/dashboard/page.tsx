@@ -1,12 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { BookOpen, Trophy, Flame, ArrowRight, CheckCircle, Target, TrendingUp } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
+  const { data: session } = useSession();
+
+  // Use the user's first name, falling back to full name, then a generic greeting
+  const fullName = session?.user?.name || "";
+  const firstName = fullName.split(" ")[0] || "there";
 
   const progress = {
     overall: 35,
@@ -31,7 +37,7 @@ export default function DashboardPage() {
         {/* Welcome */}
         <div className="mb-10">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {t("welcome", { name: "Learner" })} 👋
+            {t("welcome", { name: firstName })} 👋
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
             Keep up the great work. You're making solid progress.
