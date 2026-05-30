@@ -251,6 +251,14 @@ export default async function LocaleLayout({
             {children}
           </NextIntlClientProvider>
         </AuthProvider>
+        {/* Umami Analytics — privacy-friendly, no cookies */}
+        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <script
+            defer
+            src={process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL || "https://cloud.umami.is/script.js"}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          />
+        )}
         <Analytics />
       </body>
     </html>

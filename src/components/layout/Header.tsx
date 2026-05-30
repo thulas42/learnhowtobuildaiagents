@@ -3,13 +3,18 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import Image from "next/image";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
 
 export function Header() {
   const t = useTranslations("common");
+  const { data: session, status } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isLoggedIn = status === "authenticated" && !!session?.user;
+  const user = session?.user;
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-gray-200/50 dark:border-gray-800/50">
@@ -45,12 +50,44 @@ export function Header() {
             </Link>
             <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-2" />
             <LanguageSelector />
-            <Link href="/auth/login" className="btn-secondary text-sm px-4 py-2">
-              {t("login")}
-            </Link>
-            <Link href="/auth/signup" className="btn-primary text-sm px-4 py-2">
-              {t("signup")}
-            </Link>
+
+            {isLoggedIn ? (
+              <>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800">
+                  {user?.image ? (
+                    <Image
+                      src={user?.image}
+                      alt={user?.name || "User"}
+                      width={24}
+                      height={24}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <User className="h-4 w-4 text-gray-500" />
+                  )}
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 max-w-[120px] truncate">
+                    {user?.name || user?.email}
+                  </span>
+                </div>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="btn-secondary text-sm px-3 py-2 gap-1.5"
+                  title="Sign out"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden lg:inline">Sign out</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login" className="btn-secondary text-sm px-4 py-2">
+                  {t("login")}
+                </Link>
+                <Link href="/auth/signup" className="btn-primary text-sm px-4 py-2">
+                  {t("signup")}
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -79,12 +116,42 @@ export function Header() {
               {t("dashboard")}
             </Link>
             <div className="pt-2 space-y-2">
-              <Link href="/auth/login" className="btn-secondary text-sm text-center w-full">
-                {t("login")}
-              </Link>
-              <Link href="/auth/signup" className="btn-primary text-sm text-center w-full">
-                {t("signup")}
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <div className="flex items-center gap-2 px-4 py-2.5">
+                    {user?.image ? (
+                      <Image
+                        src={user?.image}
+                        alt={user?.name || "User"}
+                        width={28}
+                        height={28}
+                        className="rounded-full"
+                      />
+                    ) : (
+                      <User className="h-5 w-5 text-gray-500" />
+                    )}
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {user?.name || user?.email}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="btn-secondary text-sm text-center w-full gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/login" className="btn-secondary text-sm text-center w-full">
+                    {t("login")}
+                  </Link>
+                  <Link href="/auth/signup" className="btn-primary text-sm text-center w-full">
+                    {t("signup")}
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -92,3 +159,4 @@ export function Header() {
     </header>
   );
 }
+

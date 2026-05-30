@@ -8,7 +8,7 @@ import { Copy, CheckCircle, Mail, ArrowLeft } from "lucide-react";
 
 const BANK_DETAILS = {
   bank: "Standard Bank",
-  accountHolder: "MR Thulani Zondo",
+  accountHolder: "AI Agent Academy",
   accountNumber: "10217646067",
   accountType: "Prestige Current Account",
   branch: "Glenwood",
@@ -66,12 +66,12 @@ export default function EFTCheckoutPage() {
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
               Once we confirm your EFT payment of <strong>{plan.amount}</strong>, we&apos;ll
-              activate your <strong>{plan.name}</strong> plan and send a confirmation to{" "}
+              activate your <strong>{plan.name}</strong> plan and send a confirmation email to{" "}
               <strong>{email}</strong>.
             </p>
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6 text-sm text-amber-800 dark:text-amber-200">
               <strong>Important:</strong> Use your email address ({email}) as the payment
-              reference when making the EFT so we can match your payment.
+              reference when making the EFT. Payment verification takes a maximum of <strong>15 minutes</strong> after submission.
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/courses" className="btn-primary gap-2">
@@ -181,7 +181,7 @@ export default function EFTCheckoutPage() {
                   <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 flex items-center justify-center text-xs font-bold">
                     4
                   </span>
-                  <span>We&apos;ll activate your account within <strong>24 hours</strong> of receiving payment</span>
+                  <span>We&apos;ll activate your account within <strong>15 minutes</strong> of receiving payment</span>
                 </li>
               </ol>
             </div>

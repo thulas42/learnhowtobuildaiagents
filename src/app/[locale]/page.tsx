@@ -6,10 +6,12 @@ import { ModulesSection } from "@/components/landing/ModulesSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { SocialShare } from "@/components/ui/SocialShare";
 import { Footer } from "@/components/layout/Footer";
+import { RedirectIfLoggedIn } from "@/components/auth/RedirectIfLoggedIn";
 
 export default function HomePage() {
   return (
     <main>
+      <RedirectIfLoggedIn />
       <Header />
       <HeroSection />
       <FeaturesSection />

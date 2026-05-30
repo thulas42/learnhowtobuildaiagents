@@ -20,6 +20,23 @@ interface SalesData {
     purchasedAt: string;
     status: string;
   }>;
+  platform?: {
+    users: {
+      total: number;
+      thisWeek: number;
+      today: number;
+      byProvider: { google: number; github: number; email: number };
+    };
+    learning: {
+      activeLearners: number;
+      completedLessons: number;
+    };
+    revenue: {
+      total: number;
+      paidSubscriptions: number;
+      pendingEft: number;
+    };
+  };
 }
 
 export default function AdminSalesPage() {
@@ -33,12 +50,17 @@ export default function AdminSalesPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/admin/sales?key=${encodeURIComponent(key)}`);
-      if (!res.ok) {
+      const [salesRes, statsRes] = await Promise.all([
+        fetch(`/api/admin/sales?key=${encodeURIComponent(key)}`),
+        fetch(`/api/admin/stats?key=${encodeURIComponent(key)}`),
+      ]);
+      if (!salesRes.ok) {
         setError("Unauthorized. Check your admin key.");
         setData(null);
       } else {
-        setData(await res.json());
+        const salesData = await salesRes.json();
+        const statsData = await statsRes.json();
+        setData({ ...salesData, platform: statsData });
       }
     } catch {
       setError("Failed to fetch sales data.");
@@ -79,7 +101,51 @@ export default function AdminSalesPage() {
 
         {data && (
           <>
-            {/* Stats */}
+            {/* Platform Stats */}
+            {data.platform && (
+              <div className="mb-10">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Platform Overview
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                  <div className="card p-6">
+                    <p className="text-sm text-gray-500">Total Users</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                      {data.platform.users.total}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      +{data.platform.users.thisWeek} this week / +{data.platform.users.today} today
+                    </p>
+                  </div>
+                  <div className="card p-6">
+                    <p className="text-sm text-gray-500">Active Learners</p>
+                    <p className="text-3xl font-bold text-indigo-600">
+                      {data.platform.learning.activeLearners}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {data.platform.learning.completedLessons} lessons completed
+                    </p>
+                  </div>
+                  <div className="card p-6">
+                    <p className="text-sm text-gray-500">Sign-up Methods</p>
+                    <div className="text-sm mt-1 space-y-1">
+                      <p>Google: <strong>{data.platform.users.byProvider.google}</strong></p>
+                      <p>GitHub: <strong>{data.platform.users.byProvider.github}</strong></p>
+                      <p>Email: <strong>{data.platform.users.byProvider.email}</strong></p>
+                    </div>
+                  </div>
+                  <div className="card p-6">
+                    <p className="text-sm text-gray-500">Pending EFT</p>
+                    <p className="text-3xl font-bold text-amber-600">
+                      {data.platform.revenue.pendingEft}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">awaiting confirmation</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Revenue Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="card p-6">
                 <p className="text-sm text-gray-500">Total Sales</p>

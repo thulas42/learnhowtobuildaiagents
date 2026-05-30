@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -13,6 +14,7 @@ import {
   AlertCircle,
   Clock,
   Target,
+  Lock,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { QuizPlayer } from "@/components/quiz/QuizPlayer";
@@ -22,6 +24,7 @@ import { getQuestionsForLesson } from "@/data/question-bank";
 export default function LessonPage() {
   const t = useTranslations("course");
   const params = useParams();
+  const { data: session } = useSession();
   const moduleSlug = params.moduleSlug as string;
   const lessonSlug = params.lessonSlug as string;
 
@@ -30,6 +33,31 @@ export default function LessonPage() {
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [quizScore, setQuizScore] = useState<number | null>(null);
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+
+  // Check if this is a paid module (module-2 through module-6)
+  const moduleNumber = parseInt(moduleSlug.replace("module-", ""), 10);
+  const isPaidModule = moduleNumber > 1;
+
+  useEffect(() => {
+    if (!isPaidModule) {
+      setHasAccess(true);
+      return;
+    }
+
+    // Check subscription
+    const email = session?.user?.email;
+    if (email) {
+      fetch(`/api/subscription?email=${encodeURIComponent(email)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setHasAccess(data.hasSubscription);
+        })
+        .catch(() => setHasAccess(false));
+    } else {
+      setHasAccess(false);
+    }
+  }, [isPaidModule, session?.user?.email]);
 
   async function handleQuizComplete(score: number, passed: boolean) {
     setQuizCompleted(true);
@@ -78,6 +106,55 @@ export default function LessonPage() {
               ← Back to Courses
             </Link>
           </div>
+        </main>
+      </>
+    );
+  }
+
+  // Paywall — paid module without subscription
+  if (isPaidModule && hasAccess === false) {
+    return (
+      <>
+        <Header />
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <div className="card max-w-lg mx-auto p-8">
+            <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mx-auto mb-4">
+              <Lock className="h-8 w-8 text-primary-600" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">Premium Content</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-2">
+              Module {moduleNumber} is part of the paid course.
+            </p>
+            <p className="text-gray-500 dark:text-gray-500 text-sm mb-6">
+              Upgrade to access all 6 modules, 30+ lessons, projects, and your verified certificate.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link href="/pricing" className="btn-primary gap-2">
+                View Plans & Pricing
+              </Link>
+              <Link href="/checkout/eft?plan=standard" className="btn-secondary gap-2">
+                Pay via EFT (R899)
+              </Link>
+            </div>
+            <p className="text-xs text-gray-400 mt-4">
+              Module 1 is free.{" "}
+              <Link href="/courses/module-1/lesson-1.1" className="text-primary-600 hover:underline">
+                Continue learning for free →
+              </Link>
+            </p>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  // Loading access check
+  if (isPaidModule && hasAccess === null) {
+    return (
+      <>
+        <Header />
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <p className="text-gray-500">Checking access...</p>
         </main>
       </>
     );

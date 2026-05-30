@@ -71,47 +71,8 @@ export default function PricingPage() {
       return;
     }
 
-    setLoading(planId);
-
-    // Offer payment method choice
-    const method = confirm(
-      "Choose payment method:\n\nOK = Pay online (card)\nCancel = Pay via EFT (bank transfer)"
-    );
-
-    if (!method) {
-      // EFT option
-      router.push(`/checkout/eft?plan=${planId}`);
-      setLoading(null);
-      return;
-    }
-
-    // Online payment via Paystack
-    const email = prompt("Enter your email to proceed to checkout:");
-    if (!email) {
-      setLoading(null);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planId, email }),
-      });
-
-      const data = await response.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        // If Paystack isn't ready, fall back to EFT
-        router.push(`/checkout/eft?plan=${planId}`);
-      }
-    } catch (err) {
-      // Network error — fall back to EFT
-      router.push(`/checkout/eft?plan=${planId}`);
-      setLoading(null);
-    }
+    // Go directly to EFT (Paystack disabled until verified)
+    router.push(`/checkout/eft?plan=${planId}`);
   }
 
   return (
