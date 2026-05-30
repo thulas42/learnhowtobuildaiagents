@@ -53,7 +53,11 @@ export function Header() {
 
             {isLoggedIn ? (
               <>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800">
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  title="Edit profile"
+                >
                   {user?.image ? (
                     <Image
                       src={user?.image}
@@ -68,7 +72,7 @@ export function Header() {
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300 max-w-[120px] truncate">
                     {user?.name || user?.email}
                   </span>
-                </div>
+                </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
                   className="btn-secondary text-sm px-3 py-2 gap-1.5"
