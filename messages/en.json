@@ -74,7 +74,7 @@
       },
       "module4": {
         "title": "Implementing AI Agents",
-        "description": "Hands-on building with Python, LangChain, LlamaIndex, and tool integration."
+        "description": "Hands-on building with Python, LangChain, LlamaIndex, Claude (Anthropic), and MCP tool integration."
       },
       "module5": {
         "title": "Advanced Concepts",
@@ -88,7 +88,7 @@
     "stats": {
       "languages": "25+ Languages",
       "modules": "6 Modules",
-      "lessons": "30+ Lessons",
+      "lessons": "34 Lessons",
       "projects": "4 Projects"
     },
     "pricing": {

@@ -62,7 +62,7 @@ export function CertificateTemplate({ learnerName, level, date, certificateId }:
 
             <p className="text-gray-500 text-sm max-w-lg mt-2 leading-relaxed">
               demonstrating proficiency in designing, building, and deploying AI agents
-              using Python, LangChain, LlamaIndex, and multi-agent systems.
+              using Python, LangChain, LlamaIndex, Claude, and multi-agent systems.
             </p>
 
             {/* Skills */}

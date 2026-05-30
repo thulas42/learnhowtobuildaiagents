@@ -32,7 +32,7 @@ export function HeroSection() {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100/80 dark:bg-primary-900/30 border border-primary-200/50 dark:border-primary-800/50 mb-8">
             <Sparkles className="h-4 w-4 text-primary-600 dark:text-primary-400" />
             <span className="text-sm font-medium text-primary-700 dark:text-primary-300">
-              2026 Curriculum • LangChain, CrewAI, LlamaIndex
+              2026 Curriculum • Claude, LangChain, CrewAI, LlamaIndex
             </span>
           </div>
 
