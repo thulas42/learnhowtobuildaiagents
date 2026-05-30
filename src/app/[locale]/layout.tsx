@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { rtlLocales, type Locale } from "@/i18n/config";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { Analytics } from "@vercel/analytics/react";
 import "@/app/globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -98,7 +99,13 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "google-site-verification-code-here",
+    google: "1yhb22IjVnm-SAFjpYb3d7UI25VYZgx7WZkow8yfrRY",
+    yandex: "yandex-verification-code",
+    other: {
+      "msvalidate.01": "bing-verification-code",
+      "baidu-site-verification": "baidu-verification-code",
+      "naver-site-verification": "naver-verification-code",
+    },
   },
   category: "Education",
 };
@@ -224,6 +231,8 @@ export default async function LocaleLayout({
     <html lang={locale} dir={dir} className={`${inter.variable} ${playfair.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
@@ -242,6 +251,7 @@ export default async function LocaleLayout({
             {children}
           </NextIntlClientProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

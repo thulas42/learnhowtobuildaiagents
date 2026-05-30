@@ -73,11 +73,30 @@ export default function PricingPage() {
 
     setLoading(planId);
 
+    // Offer payment method choice
+    const method = confirm(
+      "Choose payment method:\n\nOK = Pay online (card)\nCancel = Pay via EFT (bank transfer)"
+    );
+
+    if (!method) {
+      // EFT option
+      router.push(`/checkout/eft?plan=${planId}`);
+      setLoading(null);
+      return;
+    }
+
+    // Online payment via Paystack
+    const email = prompt("Enter your email to proceed to checkout:");
+    if (!email) {
+      setLoading(null);
+      return;
+    }
+
     try {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planId }),
+        body: JSON.stringify({ plan: planId, email }),
       });
 
       const data = await response.json();
@@ -85,11 +104,12 @@ export default function PricingPage() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || "Failed to start checkout");
-        setLoading(null);
+        // If Paystack isn't ready, fall back to EFT
+        router.push(`/checkout/eft?plan=${planId}`);
       }
     } catch (err) {
-      alert("Network error. Please try again.");
+      // Network error — fall back to EFT
+      router.push(`/checkout/eft?plan=${planId}`);
       setLoading(null);
     }
   }
@@ -219,7 +239,7 @@ export default function PricingPage() {
               },
               {
                 q: "What payment methods do you accept?",
-                a: "We accept all major credit/debit cards, Apple Pay, Google Pay, and regional payment methods through Stripe.",
+                a: "We accept all major credit/debit cards and regional payment methods through Paystack, including Visa, Mastercard, and bank transfers.",
               },
               {
                 q: "Do you offer refunds?",

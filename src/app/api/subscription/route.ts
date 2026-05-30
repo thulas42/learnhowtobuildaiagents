@@ -8,8 +8,8 @@ interface Subscription {
   id: string;
   email: string;
   plan: string;
-  stripeSessionId: string;
-  stripeCustomerId: string;
+  paystackReference: string;
+  paystackCustomerCode: string;
   amountPaid: number;
   currency: string;
   status: "active" | "cancelled";

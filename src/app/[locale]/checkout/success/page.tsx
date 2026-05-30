@@ -8,13 +8,13 @@ import { Header } from "@/components/layout/Header";
 
 export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+  const reference = searchParams.get("reference") || searchParams.get("trxref");
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    if (sessionId) {
-      fetch(`/api/checkout/verify?session_id=${sessionId}`)
+    if (reference) {
+      fetch(`/api/checkout/verify?reference=${reference}`)
         .then((res) => res.json())
         .then((data) => {
           setSession(data);
@@ -24,7 +24,7 @@ export default function CheckoutSuccessPage() {
     } else {
       setLoading(false);
     }
-  }, [sessionId]);
+  }, [reference]);
 
   return (
     <>

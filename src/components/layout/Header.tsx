@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, BookOpen } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
 
 export function Header() {
@@ -16,9 +17,13 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md shadow-primary-500/20 group-hover:shadow-lg group-hover:shadow-primary-500/30 transition-shadow">
-              <BookOpen className="h-5 w-5 text-white" />
-            </div>
+            <Image
+              src="/icon.svg"
+              alt="AI Agent Academy"
+              width={36}
+              height={36}
+              className="rounded-xl shadow-md shadow-primary-500/20 group-hover:shadow-lg group-hover:shadow-primary-500/30 transition-shadow"
+            />
             <span className="text-lg font-bold text-gray-900 dark:text-white hidden sm:block">
               {t("appName")}
             </span>

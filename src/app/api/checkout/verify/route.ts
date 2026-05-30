@@ -1,39 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyTransaction } from "@/lib/paystack";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const sessionId = searchParams.get("session_id");
+  const reference = searchParams.get("reference");
 
-  if (!sessionId) {
-    return NextResponse.json({ error: "session_id is required" }, { status: 400 });
+  if (!reference) {
+    return NextResponse.json({ error: "reference is required" }, { status: 400 });
   }
 
   try {
-    const { stripe } = await import("@/lib/stripe");
-    if (!stripe) {
+    if (!process.env.PAYSTACK_SECRET_KEY) {
       return NextResponse.json({ error: "Payment system not configured" }, { status: 503 });
     }
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const result = await verifyTransaction(reference);
+    const { data } = result;
 
-    if (session.payment_status !== "paid") {
+    if (data.status !== "success") {
       return NextResponse.json(
-        { error: "Payment not completed", status: session.payment_status },
+        { error: "Payment not completed", status: data.status },
         { status: 400 }
       );
     }
 
     return NextResponse.json({
-      plan: session.metadata?.plan || "standard",
-      email: session.customer_email || session.customer_details?.email,
-      amount: session.amount_total,
-      currency: session.currency,
-      status: session.payment_status,
+      plan: data.metadata?.custom_fields?.[0]?.value || "standard",
+      email: data.customer?.email,
+      amount: data.amount,
+      currency: data.currency,
+      status: data.status,
+      reference: data.reference,
     });
   } catch (error: any) {
-    console.error("Session verification error:", error);
+    console.error("Transaction verification error:", error);
     return NextResponse.json(
-      { error: "Failed to verify session" },
+      { error: "Failed to verify transaction" },
       { status: 500 }
     );
   }

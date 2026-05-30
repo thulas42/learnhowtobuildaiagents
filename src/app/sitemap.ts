@@ -2,13 +2,13 @@ import { MetadataRoute } from "next";
 import { locales } from "@/i18n/config";
 import { allLessonsMeta } from "@/data/lesson-generator";
 
-const BASE_URL = process.env.NEXTAUTH_URL || "https://aiagentacademy.com";
+const BASE_URL = process.env.NEXTAUTH_URL || "https://learnhowtobuildaiagents.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes: MetadataRoute.Sitemap = [];
 
   // Static pages for each locale
-  const staticPages = ["", "/courses", "/pricing", "/auth/login", "/auth/signup"];
+  const staticPages = ["", "/courses", "/pricing", "/privacy", "/terms", "/auth/login", "/auth/signup"];
 
   for (const locale of locales) {
     const prefix = locale === "en" ? "" : `/${locale}`;

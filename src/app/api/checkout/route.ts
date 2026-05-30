@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PLANS, type PlanId } from "@/lib/stripe";
+import { initializeTransaction, PLANS, type PlanId } from "@/lib/paystack";
 
 /**
- * POST /api/checkout — Create a Stripe Checkout session
- * 
- * Body: { plan: "standard" | "premium", email?: string }
- * Returns: { url: string } — the Stripe Checkout URL to redirect to
+ * POST /api/checkout — Create a Paystack transaction
+ *
+ * Body: { plan: "standard" | "premium", email: string }
+ * Returns: { url: string } — the Paystack checkout URL to redirect to
  */
 export async function POST(request: NextRequest) {
   try {
@@ -18,8 +18,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { stripe } = await import("@/lib/stripe");
-    if (!stripe) {
+    if (!email) {
+      return NextResponse.json(
+        { error: "Email is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!process.env.PAYSTACK_SECRET_KEY) {
       return NextResponse.json(
         { error: "Payment system not configured" },
         { status: 503 }
@@ -27,35 +33,18 @@ export async function POST(request: NextRequest) {
     }
 
     const selectedPlan = PLANS[plan as PlanId];
-    if (!selectedPlan.priceId) {
-      return NextResponse.json(
-        { error: "This plan does not require payment" },
-        { status: 400 }
-      );
-    }
-
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
-    // Create Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price: selectedPlan.priceId,
-          quantity: 1,
-        },
-      ],
-      customer_email: email || undefined,
-      success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/pricing`,
-      metadata: {
-        plan,
-      },
-      allow_promotion_codes: true,
+    const result = await initializeTransaction({
+      email,
+      amount: selectedPlan.amountInKobo,
+      currency: selectedPlan.currency,
+      plan: selectedPlan.id,
+      callbackUrl: `${baseUrl}/checkout/success?reference={reference}`,
+      metadata: { plan, planName: selectedPlan.name },
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: result.data.authorization_url });
   } catch (error: any) {
     console.error("Checkout error:", error);
     return NextResponse.json(
