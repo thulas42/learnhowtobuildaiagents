@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { TechStack } from "@/components/landing/TechStack";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { ModulesSection } from "@/components/landing/ModulesSection";
 import { PricingSection } from "@/components/landing/PricingSection";
@@ -14,6 +15,7 @@ export default function HomePage() {
       <RedirectIfLoggedIn />
       <Header />
       <HeroSection />
+      <TechStack />
       <FeaturesSection />
       <ModulesSection />
       <PricingSection />
