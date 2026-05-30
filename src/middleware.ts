@@ -60,6 +60,6 @@ export default function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next|_vercel|favicon\\.ico|.*\\.[a-z]{2,4}$).*)",
+    "/((?!api|_next|_vercel|favicon\\.ico|icon\\.svg|apple-touch-icon\\.png|manifest\\.json|.*\\.(?:ico|svg|png|jpg|jpeg|gif|webp|txt|xml|json|js|css|woff|woff2|ttf|eot)$).*)",
   ],
 };
