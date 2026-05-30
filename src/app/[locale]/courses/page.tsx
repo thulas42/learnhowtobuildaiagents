@@ -64,8 +64,10 @@ const modules: ModuleData[] = [
       { number: "4.4", title: "Adding Tools and Function Calling", status: "locked" },
       { number: "4.5", title: "Building with LangChain", status: "locked" },
       { number: "4.6", title: "Building with LlamaIndex", status: "locked" },
-      { number: "4.7", title: "Agent Memory and State Management", status: "locked" },
-      { number: "4.8", title: "Testing and Debugging Agents", status: "locked" },
+      { number: "4.7", title: "Building Agents with Claude (Anthropic)", status: "locked" },
+      { number: "4.8", title: "Claude Tool Use and MCP (Model Context Protocol)", status: "locked" },
+      { number: "4.9", title: "Agent Memory and State Management", status: "locked" },
+      { number: "4.10", title: "Testing and Debugging Agents", status: "locked" },
     ],
   },
   {
@@ -115,7 +117,7 @@ export default function CoursesPage() {
             </h1>
           </div>
           <p className="text-gray-500 dark:text-gray-400 ml-[52px]">
-            6 modules • 30+ lessons • From fundamentals to production
+            6 modules • 34 lessons • From fundamentals to production
           </p>
         </div>
 
