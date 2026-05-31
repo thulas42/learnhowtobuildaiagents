@@ -2,10 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { BookOpen, Github, AlertCircle, CheckCircle } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export default function SignupPage() {
   const t = useTranslations("auth");
@@ -17,6 +18,10 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    trackEvent("signup_started");
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,6 +59,7 @@ export default function SignupPage() {
       }
 
       // Account created successfully
+      trackEvent("signup_completed", { method: "email" });
       setSuccess("Account created! Redirecting to login...");
 
       // Redirect to login after a brief delay

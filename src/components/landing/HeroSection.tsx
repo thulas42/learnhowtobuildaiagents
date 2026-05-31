@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Globe, Award, Code } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export function HeroSection() {
   const t = useTranslations("landing.hero");
@@ -46,11 +47,19 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-            <Link href="/courses/module-1/lesson-1.1" className="btn-primary text-lg px-8 py-4 gap-2">
+            <Link
+              href="/courses/module-1/lesson-1.1"
+              className="btn-primary text-lg px-8 py-4 gap-2"
+              onClick={() => trackEvent("cta_start_learning", { source: "hero" })}
+            >
               {t("cta")}
               <ArrowRight className="h-5 w-5" />
             </Link>
-            <Link href="#modules" className="btn-secondary text-lg px-8 py-4 gap-2">
+            <Link
+              href="#modules"
+              className="btn-secondary text-lg px-8 py-4 gap-2"
+              onClick={() => trackEvent("cta_view_curriculum", { source: "hero" })}
+            >
               {t("ctaSecondary")}
             </Link>
           </div>

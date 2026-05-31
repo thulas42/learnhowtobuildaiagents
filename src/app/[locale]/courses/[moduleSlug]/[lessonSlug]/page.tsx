@@ -20,6 +20,7 @@ import { Header } from "@/components/layout/Header";
 import { QuizPlayer } from "@/components/quiz/QuizPlayer";
 import { getLesson } from "@/data/lessons";
 import { getQuestionsForLesson } from "@/data/question-bank";
+import { trackEvent } from "@/lib/analytics";
 
 export default function LessonPage() {
   const t = useTranslations("course");
@@ -35,9 +36,25 @@ export default function LessonPage() {
   const [quizScore, setQuizScore] = useState<number | null>(null);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
 
+  function startQuiz() {
+    setShowQuiz(true);
+    trackEvent("quiz_started", { lesson: `${moduleSlug}/${lessonSlug}` });
+  }
+
   // Check if this is a paid module (module-2 through module-6)
   const moduleNumber = parseInt(moduleSlug.replace("module-", ""), 10);
   const isPaidModule = moduleNumber > 1;
+
+  // Track lesson opened
+  useEffect(() => {
+    if (lesson) {
+      trackEvent("lesson_started", {
+        lesson: `${moduleSlug}/${lessonSlug}`,
+        module: moduleNumber,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleSlug, lessonSlug]);
 
   useEffect(() => {
     if (!isPaidModule) {
@@ -52,16 +69,36 @@ export default function LessonPage() {
         .then((res) => res.json())
         .then((data) => {
           setHasAccess(data.hasSubscription);
+          if (!data.hasSubscription) {
+            trackEvent("paywall_viewed", {
+              module: moduleNumber,
+              lesson: `${moduleSlug}/${lessonSlug}`,
+            });
+          }
         })
         .catch(() => setHasAccess(false));
     } else {
       setHasAccess(false);
+      trackEvent("paywall_viewed", {
+        module: moduleNumber,
+        lesson: `${moduleSlug}/${lessonSlug}`,
+        reason: "not_logged_in",
+      });
     }
   }, [isPaidModule, session?.user?.email]);
 
   async function handleQuizComplete(score: number, passed: boolean) {
     setQuizCompleted(true);
     setQuizScore(score);
+
+    // Track quiz result
+    trackEvent(passed ? "quiz_passed" : "quiz_failed", {
+      lesson: `${moduleSlug}/${lessonSlug}`,
+      score,
+    });
+    if (passed) {
+      trackEvent("lesson_completed", { lesson: `${moduleSlug}/${lessonSlug}` });
+    }
 
     try {
       await fetch("/api/progress", {
@@ -213,7 +250,7 @@ export default function LessonPage() {
             Lesson
           </button>
           <button
-            onClick={() => setShowQuiz(true)}
+            onClick={() => startQuiz()}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
               showQuiz
                 ? "bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm"
@@ -254,7 +291,7 @@ export default function LessonPage() {
                   5 randomized questions from a pool of 10. Pass with 60% to unlock the next lesson.
                 </p>
                 <button
-                  onClick={() => setShowQuiz(true)}
+                  onClick={startQuiz}
                   className="btn-primary gap-2"
                 >
                   <Target className="h-4 w-4" />

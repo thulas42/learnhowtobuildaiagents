@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Check, Sparkles, Shield, Globe, Zap } from "lucide-react";
 import { Header } from "@/components/layout/Header";
+import { trackEvent } from "@/lib/analytics";
 
 const plans = [
   {
@@ -65,13 +66,19 @@ export default function PricingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
 
+  useEffect(() => {
+    trackEvent("pricing_viewed");
+  }, []);
+
   async function handleCheckout(planId: string) {
     if (planId === "free") {
+      trackEvent("signup_started", { source: "pricing_free" });
       router.push("/auth/signup");
       return;
     }
 
     // Go directly to EFT (Paystack disabled until verified)
+    trackEvent("checkout_started", { plan: planId });
     router.push(`/checkout/eft?plan=${planId}`);
   }
 

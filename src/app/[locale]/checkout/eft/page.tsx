@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Copy, CheckCircle, Mail, ArrowLeft } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 const BANK_DETAILS = {
   bank: "Standard Bank",
@@ -39,6 +40,8 @@ export default function EFTCheckoutPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email) return;
+
+    trackEvent("checkout_submitted", { plan: planId, amount: plan.amountNum });
 
     // Notify admin about pending EFT payment
     try {
