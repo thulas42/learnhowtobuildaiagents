@@ -18,12 +18,12 @@ const modules: ModuleData[] = [
     number: 1,
     titleKey: "module1",
     color: "from-blue-500 to-cyan-500",
-    progress: 100,
+    progress: 0,
     lessons: [
-      { number: "1.1", title: "What is an AI Agent?", status: "completed" },
-      { number: "1.2", title: "Types of AI Agents", status: "completed" },
-      { number: "1.3", title: "Key Components of an AI Agent", status: "completed" },
-      { number: "1.4", title: "Applications of AI Agents", status: "completed" },
+      { number: "1.1", title: "What is an AI Agent?", status: "current" },
+      { number: "1.2", title: "Types of AI Agents", status: "current" },
+      { number: "1.3", title: "Key Components of an AI Agent", status: "current" },
+      { number: "1.4", title: "Applications of AI Agents", status: "current" },
     ],
   },
   {
@@ -119,6 +119,30 @@ export default function CoursesPage() {
           <p className="text-gray-500 dark:text-gray-400 ml-[52px]">
             6 modules • 34 lessons • From fundamentals to production
           </p>
+        </div>
+
+        {/* Free Module 1 banner */}
+        <div className="mb-8 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center shrink-0">
+              <PlayCircle className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white">
+                Module 1 is completely free
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                No signup or credit card needed. Start learning right now.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/courses/module-1/lesson-1.1"
+            className="btn-primary whitespace-nowrap gap-2"
+          >
+            Start Lesson 1
+            <PlayCircle className="h-4 w-4" />
+          </Link>
         </div>
 
         <div className="space-y-6">

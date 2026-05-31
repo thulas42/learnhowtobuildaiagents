@@ -45,8 +45,8 @@ export function HeroSection() {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Link href="/auth/signup" className="btn-primary text-lg px-8 py-4 gap-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+            <Link href="/courses/module-1/lesson-1.1" className="btn-primary text-lg px-8 py-4 gap-2">
               {t("cta")}
               <ArrowRight className="h-5 w-5" />
             </Link>
@@ -54,6 +54,11 @@ export function HeroSection() {
               {t("ctaSecondary")}
             </Link>
           </div>
+
+          {/* Trust line */}
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-16">
+            ✓ Module 1 is free &nbsp;•&nbsp; ✓ No credit card &nbsp;•&nbsp; ✓ Start in 10 seconds
+          </p>
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
