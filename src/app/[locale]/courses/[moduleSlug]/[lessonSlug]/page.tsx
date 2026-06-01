@@ -19,7 +19,6 @@ import {
 import { Header } from "@/components/layout/Header";
 import { QuizPlayer } from "@/components/quiz/QuizPlayer";
 import { getLesson } from "@/data/lessons";
-import { getQuestionsForLesson } from "@/data/question-bank";
 import { trackEvent } from "@/lib/analytics";
 
 export default function LessonPage() {
@@ -63,11 +62,14 @@ export default function LessonPage() {
     }
 
     // Check subscription
-    const email = session?.user?.email;
-    if (email) {
-      fetch(`/api/subscription?email=${encodeURIComponent(email)}`)
-        .then((res) => res.json())
-        .then((data) => {
+    if (session?.user) {
+      fetch("/api/subscription", { credentials: "include" })
+        .then(async (res) => {
+          if (!res.ok) {
+            setHasAccess(false);
+            return;
+          }
+          const data = await res.json();
           setHasAccess(data.hasSubscription);
           if (!data.hasSubscription) {
             trackEvent("paywall_viewed", {
@@ -85,9 +87,17 @@ export default function LessonPage() {
         reason: "not_logged_in",
       });
     }
-  }, [isPaidModule, session?.user?.email]);
+  }, [isPaidModule, session?.user]);
 
-  async function handleQuizComplete(score: number, passed: boolean) {
+  async function handleQuizComplete(
+    score: number,
+    passed: boolean,
+    gradedAnswers: {
+      questionId: string;
+      selectedOptions: string[];
+      correct: boolean;
+    }[]
+  ) {
     setQuizCompleted(true);
     setQuizScore(score);
 
@@ -104,6 +114,7 @@ export default function LessonPage() {
       await fetch("/api/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           lessonId: `${moduleSlug}/${lessonSlug}`,
           status: passed ? "COMPLETED" : "IN_PROGRESS",
@@ -113,11 +124,12 @@ export default function LessonPage() {
       await fetch("/api/quiz/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           lessonId: `${moduleSlug}/${lessonSlug}`,
           score,
           passed,
-          answers: [],
+          answers: gradedAnswers,
         }),
       });
     } catch (err) {
@@ -303,11 +315,7 @@ export default function LessonPage() {
         ) : (
           <QuizPlayer
             title={`Quiz ${lesson.number}: ${lesson.title}`}
-            questions={(() => {
-              const bankQuestions = getQuestionsForLesson(`${moduleSlug}/${lessonSlug}`);
-              if (bankQuestions.length > 0) return bankQuestions;
-              return lesson.quiz.questions;
-            })()}
+            lessonId={`${moduleSlug}/${lessonSlug}`}
             passingScore={lesson.quiz.passingScore}
             questionsPerAttempt={5}
             onComplete={handleQuizComplete}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLessonMeta } from "@/data/lesson-generator";
+import { pageMetadata } from "@/lib/seo";
 
 interface Props {
   params: { locale: string; moduleSlug: string; lessonSlug: string };
@@ -10,25 +11,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const meta = getLessonMeta(slug);
 
   if (!meta) {
-    return { title: "Lesson Not Found" };
+    return { title: "Lesson Not Found", robots: { index: false } };
   }
 
-  const title = `${meta.title} — Lesson ${meta.number} | AI Agent Academy`;
-  const description = `Learn ${meta.title.toLowerCase()} in Module ${meta.moduleNumber}: ${meta.moduleTitle}. Interactive lesson with code examples, diagrams, and quiz. Part of the AI Agent Development course.`;
+  const title = `${meta.title} — Lesson ${meta.number}`;
+  const description = `Free lesson: ${meta.title}. Module ${meta.moduleNumber} (${meta.moduleTitle}) of the AI Agent Development course. Code examples, diagrams & quiz. Learn LangChain, Claude & agent architecture.`;
+  const path = `/courses/${slug}`;
 
-  return {
+  return pageMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: "article",
-      section: meta.moduleTitle,
-    },
-    twitter: {
-      card: "summary",
-      title: `Lesson ${meta.number}: ${meta.title}`,
-      description,
-    },
-  };
+    path,
+    locale: params.locale,
+    keywords: [
+      meta.title.toLowerCase(),
+      meta.moduleTitle.toLowerCase(),
+      `AI agent lesson ${meta.number}`,
+      "AI agent tutorial",
+    ],
+    ogType: "article",
+  });
 }

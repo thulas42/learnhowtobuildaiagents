@@ -3,6 +3,9 @@ import { Footer } from "@/components/layout/Footer";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
+import { blogPostsMeta } from "@/data/blog-posts-meta";
+import { BreadcrumbSchema } from "@/components/seo/StructuredData";
+import { pageMetadata } from "@/lib/seo";
 
 const blogPosts: Record<string, { title: string; content: string; category: string; date: string }> = {
   "what-are-ai-agents": {
@@ -327,11 +330,23 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = blogPosts[params.slug];
-  if (!post) return { title: "Post Not Found" };
-  return {
+  const meta = blogPostsMeta.find((p) => p.slug === params.slug);
+  if (!post || !meta) return { title: "Post Not Found", robots: { index: false } };
+
+  const plain = post.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+  return pageMetadata({
     title: post.title,
-    description: post.content.replace(/<[^>]*>/g, "").substring(0, 160),
-  };
+    description: meta.excerpt || plain.substring(0, 160),
+    path: `/blog/${params.slug}`,
+    locale: params.locale,
+    keywords: [meta.category, "AI agents", "tutorial"],
+    ogType: "article",
+  });
+}
+
+export function generateStaticParams() {
+  return blogPostsMeta.map((post) => ({ slug: post.slug }));
 }
 
 export default function BlogPostPage({ params }: Props) {
@@ -351,6 +366,13 @@ export default function BlogPostPage({ params }: Props) {
 
   return (
     <>
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Blog", path: "/blog" },
+          { name: post.title, path: `/blog/${params.slug}` },
+        ]}
+      />
       <Header />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Link
@@ -361,18 +383,20 @@ export default function BlogPostPage({ params }: Props) {
           Back to blog
         </Link>
 
-        <article>
-          <div className="mb-8">
+        <article itemScope itemType="https://schema.org/Article">
+          <header className="mb-8">
             <div className="flex items-center gap-3 mb-3">
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
                 {post.category}
               </span>
-              <span className="text-xs text-gray-400">{post.date}</span>
+              <time className="text-xs text-gray-400" dateTime={post.date}>
+                {post.date}
+              </time>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               {post.title}
             </h1>
-          </div>
+          </header>
 
           <div
             className="lesson-content"

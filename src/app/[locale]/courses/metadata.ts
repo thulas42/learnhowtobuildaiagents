@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "AI Agent Development Course — All Modules & Lessons",
-  description:
-    "Browse all 6 modules and 30+ lessons of our AI agent development course. From introduction to AI agents through advanced multi-agent systems and production deployment. Start learning free.",
-  openGraph: {
-    title: "AI Agent Course Modules — 30+ Lessons from Beginner to Advanced",
+type Props = { params: { locale: string } };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return pageMetadata({
+    title: "AI Agent Development Course — All Modules & Lessons",
     description:
-      "6 modules covering AI agent fundamentals, machine learning, architecture design, implementation with LangChain & LlamaIndex, advanced concepts, and hands-on projects.",
-  },
-};
+      "Browse 6 modules and 30+ lessons: AI agent fundamentals, LangChain, LlamaIndex, Claude tool use, MCP, RAG, multi-agent systems & capstone projects. Start Module 1 free.",
+    path: "/courses",
+    locale: params.locale,
+    keywords: [
+      "AI agent curriculum",
+      "LangChain lessons",
+      "AI agent modules",
+      "free AI agent course module 1",
+    ],
+  });
+}

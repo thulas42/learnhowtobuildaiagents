@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import fs from "fs";
-import path from "path";
+import { generateId, getUsers, saveUsers } from "@/lib/data-store";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -10,50 +9,11 @@ const registerSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-// Simple file-based user store for local development (no PostgreSQL needed)
-const USERS_FILE = path.join(process.cwd(), "data", "users.json");
-
-interface StoredUser {
-  id: string;
-  name: string;
-  email: string;
-  passwordHash: string;
-  locale: string;
-  learningPath: string;
-  createdAt: string;
-}
-
-function ensureDataDir() {
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
-
-function getUsers(): StoredUser[] {
-  ensureDataDir();
-  if (!fs.existsSync(USERS_FILE)) {
-    return [];
-  }
-  const data = fs.readFileSync(USERS_FILE, "utf-8");
-  return JSON.parse(data);
-}
-
-function saveUsers(users: StoredUser[]) {
-  ensureDataDir();
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-}
-
-function generateId(): string {
-  return `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, email, password } = registerSchema.parse(body);
 
-    // Check if user already exists
     const users = getUsers();
     const existingUser = users.find(
       (u) => u.email.toLowerCase() === email.toLowerCase()
@@ -66,12 +26,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Create user
-    const newUser: StoredUser = {
-      id: generateId(),
+    const newUser = {
+      id: generateId("user"),
       name,
       email: email.toLowerCase(),
       passwordHash,
@@ -83,7 +41,6 @@ export async function POST(request: NextRequest) {
     users.push(newUser);
     saveUsers(users);
 
-    // Return user (without password hash)
     return NextResponse.json(
       {
         user: {

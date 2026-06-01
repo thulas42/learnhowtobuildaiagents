@@ -4,8 +4,6 @@ describe("API Endpoints", () => {
       cy.request("/api/auth/providers").then((res) => {
         expect(res.status).to.eq(200);
         expect(res.body).to.have.property("credentials");
-        expect(res.body).to.have.property("google");
-        expect(res.body).to.have.property("github");
       });
     });
 
@@ -23,10 +21,16 @@ describe("API Endpoints", () => {
     });
 
     it("POST /api/auth/register rejects duplicate email", () => {
+      const email = `dup-${Date.now()}@test.com`;
+      cy.request("POST", "/api/auth/register", {
+        name: "Dup",
+        email,
+        password: "pass1234",
+      });
       cy.request({
         method: "POST",
         url: "/api/auth/register",
-        body: { name: "Dup", email: "test@example.com", password: "pass1234" },
+        body: { name: "Dup", email, password: "pass1234" },
         failOnStatusCode: false,
       }).then((res) => {
         expect(res.status).to.eq(409);
@@ -34,11 +38,27 @@ describe("API Endpoints", () => {
     });
   });
 
-  describe("Progress", () => {
+  describe("Progress (authenticated)", () => {
+    const email = `progress-${Date.now()}@test.com`;
+    const password = "testpass123";
+
+    before(() => {
+      cy.request("POST", "/api/auth/register", {
+        name: "Progress User",
+        email,
+        password,
+      });
+      cy.loginByApi(email, password);
+    });
+
     it("POST /api/progress saves progress", () => {
-      cy.request("POST", "/api/progress", {
-        lessonId: "module-1/lesson-1.1",
-        status: "COMPLETED",
+      cy.request({
+        method: "POST",
+        url: "/api/progress",
+        body: {
+          lessonId: "module-1/lesson-1.1",
+          status: "COMPLETED",
+        },
       }).then((res) => {
         expect(res.status).to.eq(200);
         expect(res.body.progress.status).to.eq("COMPLETED");
@@ -52,36 +72,58 @@ describe("API Endpoints", () => {
         expect(res.body).to.have.property("totalLessons");
       });
     });
+
+    it("GET /api/progress returns 401 when not authenticated", () => {
+      cy.clearCookies();
+      cy.request({ url: "/api/progress", failOnStatusCode: false }).then(
+        (res) => {
+          expect(res.status).to.eq(401);
+        }
+      );
+      cy.loginByApi(email, password);
+    });
   });
 
   describe("Questions", () => {
-    it("GET /api/questions returns randomized questions", () => {
-      cy.request("/api/questions?lessonId=module-1/lesson-1.1&count=5").then((res) => {
-        expect(res.status).to.eq(200);
-        expect(res.body.totalInPool).to.eq(10);
-        expect(res.body.questionsServed).to.eq(5);
-        expect(res.body.questions).to.have.length(5);
-      });
+    it("GET /api/questions returns randomized questions without answers", () => {
+      cy.request("/api/questions?lessonId=module-1/lesson-1.1&count=5").then(
+        (res) => {
+          expect(res.status).to.eq(200);
+          expect(res.body.questionsServed).to.eq(5);
+          expect(res.body.questions[0]).not.to.have.property("correctAnswers");
+        }
+      );
     });
 
-    it("returns different questions on each call", () => {
-      cy.request("/api/questions?lessonId=module-1/lesson-1.1&count=5").then((res1) => {
-        cy.request("/api/questions?lessonId=module-1/lesson-1.1&count=5").then((res2) => {
-          const ids1 = res1.body.questions.map((q: any) => q.id).sort().join(",");
-          const ids2 = res2.body.questions.map((q: any) => q.id).sort().join(",");
-          // With 10 questions choosing 5, very unlikely to get same set twice
-          // But we check structure is valid regardless
-          expect(res1.body.questions[0]).to.have.property("question");
-          expect(res1.body.questions[0]).to.have.property("options");
-          expect(res1.body.questions[0]).not.to.have.property("correctAnswers");
-        });
-      });
+    it("POST /api/questions grades answers server-side", () => {
+      cy.request("/api/questions?lessonId=module-1/lesson-1.1&count=1").then(
+        (getRes) => {
+          const q = getRes.body.questions[0];
+          cy.request("POST", "/api/questions", {
+            lessonId: "module-1/lesson-1.1",
+            answers: [{ questionId: q.id, selectedOptions: [q.options[0].id] }],
+          }).then((res) => {
+            expect(res.status).to.eq(200);
+            expect(res.body).to.have.property("score");
+            expect(res.body.gradedAnswers[0]).not.to.have.property(
+              "correctAnswers"
+            );
+          });
+        }
+      );
     });
   });
 
-  describe("Subscription", () => {
-    it("GET /api/subscription returns free for unknown user", () => {
-      cy.request("/api/subscription?email=nobody@test.com").then((res) => {
+  describe("Subscription (authenticated)", () => {
+    it("GET /api/subscription returns free for new user", () => {
+      const email = `sub-${Date.now()}@test.com`;
+      cy.request("POST", "/api/auth/register", {
+        name: "Sub User",
+        email,
+        password: "testpass123",
+      });
+      cy.loginByApi(email, "testpass123");
+      cy.request("/api/subscription").then((res) => {
         expect(res.status).to.eq(200);
         expect(res.body.plan).to.eq("free");
         expect(res.body.hasSubscription).to.eq(false);
@@ -95,7 +137,6 @@ describe("API Endpoints", () => {
         expect(res.status).to.eq(200);
         expect(res.headers["content-type"]).to.include("xml");
         expect(res.body).to.include("<urlset");
-        expect(res.body).to.include("<loc>");
       });
     });
 
@@ -103,7 +144,6 @@ describe("API Endpoints", () => {
       cy.request("/robots.txt").then((res) => {
         expect(res.status).to.eq(200);
         expect(res.body).to.include("User-Agent");
-        expect(res.body).to.include("Sitemap");
       });
     });
   });

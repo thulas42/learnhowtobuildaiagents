@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import fs from "fs";
-import path from "path";
+import {
+  generateId,
+  getQuizAttempts,
+  saveQuizAttempts,
+  type QuizAttemptRecord,
+} from "@/lib/data-store";
+import { getSessionUser, unauthorizedResponse } from "@/lib/session";
 
 const submitSchema = z.object({
   lessonId: z.string(),
@@ -16,51 +21,21 @@ const submitSchema = z.object({
   ),
 });
 
-// File-based quiz attempts store
-const ATTEMPTS_FILE = path.join(process.cwd(), "data", "quiz-attempts.json");
-
-interface QuizAttemptRecord {
-  id: string;
-  userId: string;
-  lessonId: string;
-  score: number;
-  passed: boolean;
-  answers: any[];
-  completedAt: string;
-}
-
-function ensureDataDir() {
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
-
-function getAttempts(): QuizAttemptRecord[] {
-  ensureDataDir();
-  if (!fs.existsSync(ATTEMPTS_FILE)) {
-    return [];
-  }
-  return JSON.parse(fs.readFileSync(ATTEMPTS_FILE, "utf-8"));
-}
-
-function saveAttempts(attempts: QuizAttemptRecord[]) {
-  ensureDataDir();
-  fs.writeFileSync(ATTEMPTS_FILE, JSON.stringify(attempts, null, 2));
-}
-
 /**
- * POST /api/quiz/submit — Save a quiz attempt
+ * POST /api/quiz/submit — Save a quiz attempt for authenticated user
  */
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser();
+    if (!user) return unauthorizedResponse();
+
     const body = await request.json();
     const { lessonId, score, passed, answers } = submitSchema.parse(body);
 
-    const attempts = getAttempts();
+    const attempts = getQuizAttempts();
     const attempt: QuizAttemptRecord = {
-      id: `attempt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      userId: "default-user",
+      id: generateId("attempt"),
+      userId: user.id,
       lessonId,
       score,
       passed,
@@ -69,7 +44,7 @@ export async function POST(request: NextRequest) {
     };
 
     attempts.push(attempt);
-    saveAttempts(attempts);
+    saveQuizAttempts(attempts);
 
     return NextResponse.json({
       attemptId: attempt.id,
@@ -93,14 +68,17 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * GET /api/quiz/submit?lessonId=xxx — Get quiz attempts for a lesson
+ * GET /api/quiz/submit?lessonId=xxx — Get quiz attempts for authenticated user
  */
 export async function GET(request: NextRequest) {
   try {
+    const user = await getSessionUser();
+    if (!user) return unauthorizedResponse();
+
     const { searchParams } = new URL(request.url);
     const lessonId = searchParams.get("lessonId");
 
-    const attempts = getAttempts();
+    const attempts = getQuizAttempts().filter((a) => a.userId === user.id);
     const filtered = lessonId
       ? attempts.filter((a) => a.lessonId === lessonId)
       : attempts;
@@ -108,7 +86,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       attempts: filtered,
       totalAttempts: filtered.length,
-      bestScore: filtered.length > 0 ? Math.max(...filtered.map((a) => a.score)) : 0,
+      bestScore:
+        filtered.length > 0
+          ? Math.max(...filtered.map((a) => a.score))
+          : 0,
       passed: filtered.some((a) => a.passed),
     });
   } catch (error) {

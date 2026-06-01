@@ -2,49 +2,47 @@ describe("Quiz System", () => {
   beforeEach(() => {
     cy.visit("/courses/module-1/lesson-1.1");
     cy.contains("Quiz").click();
+    cy.get("[data-testid=quiz-player]", { timeout: 15000 }).should("be.visible");
   });
 
   it("displays a quiz with questions", () => {
     cy.contains("Question 1 of 5").should("be.visible");
   });
 
-  it("shows 4 answer options", () => {
-    cy.get("button").filter(":contains('A'), :contains('B'), :contains('C'), :contains('D')").should("have.length.at.least", 4);
+  it("shows answer options", () => {
+    cy.get("[data-testid^=quiz-option-]").should("have.length.at.least", 2);
   });
 
   it("requires selecting an answer before submitting", () => {
-    cy.contains("Submit").should("be.disabled");
+    cy.get("[data-testid=quiz-submit]").should("be.disabled");
   });
 
   it("allows selecting an answer", () => {
-    cy.get("[class*='rounded-lg border-2']").first().click();
-    cy.contains("Submit").should("not.be.disabled");
+    cy.get("[data-testid^=quiz-option-]").first().click();
+    cy.get("[data-testid=quiz-submit]").should("not.be.disabled");
   });
 
   it("shows feedback after submitting", () => {
-    cy.get("[class*='rounded-lg border-2']").first().click();
-    cy.contains("Submit").click();
-    cy.get("[class*='rounded-lg']").then(($el) => {
-      const text = $el.text();
-      expect(text.includes("Correct") || text.includes("Incorrect")).to.be.true;
-    });
+    cy.get("[data-testid^=quiz-option-]").first().click();
+    cy.get("[data-testid=quiz-submit]").click();
+    cy.contains(/Correct|Incorrect/i).should("be.visible");
   });
 
   it("advances to next question", () => {
-    cy.get("[class*='rounded-lg border-2']").first().click();
-    cy.contains("Submit").click();
-    cy.contains("Next").click();
+    cy.get("[data-testid^=quiz-option-]").first().click();
+    cy.get("[data-testid=quiz-submit]").click();
+    cy.get("[data-testid=quiz-next]").click();
     cy.contains("Question 2 of 5").should("be.visible");
   });
 
   it("shows results after completing all questions", () => {
     for (let i = 0; i < 5; i++) {
-      cy.get("[class*='rounded-lg border-2']").first().click();
-      cy.contains("Submit").click();
+      cy.get("[data-testid^=quiz-option-]").first().click();
+      cy.get("[data-testid=quiz-submit]").click();
       if (i < 4) {
-        cy.contains("Next").click();
+        cy.get("[data-testid=quiz-next]").click();
       } else {
-        cy.contains("Finish").click();
+        cy.get("[data-testid=quiz-next]").click();
       }
     }
     cy.contains("Quiz Result").should("be.visible");

@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
 import { generateCertificateId, determineCertificateLevel, CERTIFICATE_SKILLS } from "@/lib/certificate";
-
-// File-based certificate store
-const CERTS_FILE = path.join(process.cwd(), "data", "certificates.json");
+import { DATA_FILES, readJsonFile, writeJsonFile } from "@/lib/data-store";
+import { getSessionUser, unauthorizedResponse } from "@/lib/session";
 
 interface StoredCertificate {
   id: string;
@@ -17,40 +14,31 @@ interface StoredCertificate {
   skills: string[];
 }
 
-function ensureDataDir() {
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
-
 function getCertificates(): StoredCertificate[] {
-  ensureDataDir();
-  if (!fs.existsSync(CERTS_FILE)) {
-    return [];
-  }
-  return JSON.parse(fs.readFileSync(CERTS_FILE, "utf-8"));
+  return readJsonFile<StoredCertificate[]>(DATA_FILES.certificates, []);
 }
 
 function saveCertificates(certs: StoredCertificate[]) {
-  ensureDataDir();
-  fs.writeFileSync(CERTS_FILE, JSON.stringify(certs, null, 2));
+  writeJsonFile(DATA_FILES.certificates, certs);
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, learnerName, examScore, capstoneScore } = await request.json();
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) return unauthorizedResponse();
 
-    if (!userId || !learnerName) {
+    const { learnerName, examScore, capstoneScore } = await request.json();
+    const effectiveName = learnerName || sessionUser.name;
+
+    if (!effectiveName) {
       return NextResponse.json(
-        { error: "userId and learnerName are required" },
+        { error: "learnerName is required" },
         { status: 400 }
       );
     }
 
-    // Check if user already has a certificate
     const certs = getCertificates();
-    const existing = certs.find((c) => c.userId === userId);
+    const existing = certs.find((c) => c.userId === sessionUser.id);
     if (existing) {
       return NextResponse.json({
         certificate: existing,
@@ -71,10 +59,10 @@ export async function POST(request: NextRequest) {
 
     const certificate: StoredCertificate = {
       id: certificateId,
-      userId,
+      userId: sessionUser.id,
       certificateId,
       level,
-      learnerName,
+      learnerName: effectiveName,
       verificationUrl,
       issuedAt: new Date().toISOString(),
       skills: CERTIFICATE_SKILLS,

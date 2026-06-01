@@ -33,8 +33,8 @@ export default function ProfilePage() {
 
   // Fetch profile data
   useEffect(() => {
-    if (session?.user?.email) {
-      fetch(`/api/profile?email=${encodeURIComponent(session.user.email)}`)
+    if (session?.user) {
+      fetch("/api/profile", { credentials: "include" })
         .then((res) => res.json())
         .then((data) => {
           if (!data.error) {
@@ -50,7 +50,7 @@ export default function ProfilePage() {
         })
         .catch(() => setLoading(false));
     }
-  }, [session?.user?.email]);
+  }, [session?.user]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -62,7 +62,8 @@ export default function ProfilePage() {
       const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, locale, learningPath }),
+        credentials: "include",
+        body: JSON.stringify({ name, locale, learningPath }),
       });
 
       const data = await res.json();

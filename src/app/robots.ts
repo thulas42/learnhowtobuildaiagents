@@ -1,46 +1,42 @@
 import { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
+
+const DISALLOW = [
+  "/api/",
+  "/dashboard/",
+  "/profile/",
+  "/checkout/",
+  "/admin/",
+  "/auth/",
+  "/certificate/preview",
+];
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXTAUTH_URL || "https://learnhowtobuildaiagents.com";
+  const baseUrl = SITE_URL.replace(/\/$/, "");
 
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/dashboard/", "/checkout/"],
+        disallow: DISALLOW,
       },
       {
         userAgent: "Googlebot",
         allow: "/",
-        disallow: ["/api/", "/dashboard/", "/checkout/"],
+        disallow: DISALLOW,
+      },
+      {
+        userAgent: "Googlebot-Image",
+        allow: "/",
       },
       {
         userAgent: "Bingbot",
         allow: "/",
-        disallow: ["/api/", "/dashboard/", "/checkout/"],
-      },
-      {
-        userAgent: "Yandex",
-        allow: "/",
-        disallow: ["/api/", "/dashboard/", "/checkout/"],
-      },
-      {
-        userAgent: "Baiduspider",
-        allow: "/",
-        disallow: ["/api/", "/dashboard/", "/checkout/"],
-      },
-      {
-        userAgent: "DuckDuckBot",
-        allow: "/",
-        disallow: ["/api/", "/dashboard/", "/checkout/"],
-      },
-      {
-        userAgent: "Naverbot",
-        allow: "/",
-        disallow: ["/api/", "/dashboard/", "/checkout/"],
+        disallow: DISALLOW,
       },
     ],
+    host: baseUrl,
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

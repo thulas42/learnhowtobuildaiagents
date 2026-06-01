@@ -1,43 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import fs from "fs";
-import path from "path";
 import { Resend } from "resend";
+import {
+  DATA_FILES,
+  getSubscriptions,
+  readJsonFile,
+  saveSubscriptions,
+  type Subscription,
+  writeJsonFile,
+} from "@/lib/data-store";
 
-const SUBSCRIPTIONS_FILE = path.join(process.cwd(), "data", "subscriptions.json");
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "thulanizondo42@gmail.com";
-
-interface Subscription {
-  id: string;
-  email: string;
-  plan: string;
-  paystackReference: string;
-  paystackCustomerCode: string;
-  amountPaid: number;
-  currency: string;
-  status: "active" | "cancelled";
-  purchasedAt: string;
-}
-
-function ensureDataDir() {
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
-
-function getSubscriptions(): Subscription[] {
-  ensureDataDir();
-  if (!fs.existsSync(SUBSCRIPTIONS_FILE)) {
-    return [];
-  }
-  return JSON.parse(fs.readFileSync(SUBSCRIPTIONS_FILE, "utf-8"));
-}
-
-function saveSubscriptions(subs: Subscription[]) {
-  ensureDataDir();
-  fs.writeFileSync(SUBSCRIPTIONS_FILE, JSON.stringify(subs, null, 2));
-}
 
 /**
  * Send email notification to admin about new payment
@@ -75,12 +48,10 @@ async function notifyAdmin(subscription: Subscription) {
     }
   }
 
-  // Also log to a notifications file as backup
-  const notifFile = path.join(process.cwd(), "data", "notifications.json");
-  ensureDataDir();
-  const notifications = fs.existsSync(notifFile)
-    ? JSON.parse(fs.readFileSync(notifFile, "utf-8"))
-    : [];
+  const notifications = readJsonFile<Record<string, unknown>[]>(
+    DATA_FILES.notifications,
+    []
+  );
   notifications.push({
     type: "payment",
     email: subscription.email,
@@ -91,7 +62,7 @@ async function notifyAdmin(subscription: Subscription) {
     timestamp: subscription.purchasedAt,
     notified: !!process.env.RESEND_API_KEY,
   });
-  fs.writeFileSync(notifFile, JSON.stringify(notifications, null, 2));
+  writeJsonFile(DATA_FILES.notifications, notifications);
 }
 
 /**

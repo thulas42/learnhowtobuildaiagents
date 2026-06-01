@@ -6,61 +6,21 @@ import Link from "next/link";
 import { Check, Sparkles, Shield, Globe, Zap } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { trackEvent } from "@/lib/analytics";
+import { PLANS, type PlanId } from "@/lib/paystack";
 
-const plans = [
-  {
-    id: "free",
-    name: "Free",
-    price: "$0",
-    period: "forever",
-    description: "Get started with the fundamentals",
-    features: [
-      "Module 1 complete access",
-      "Partial Module 2 (2 lessons)",
-      "Community forum access",
-      "Browser code playground",
-      "Progress tracking",
-    ],
-    cta: "Start Free",
-    popular: false,
-  },
-  {
-    id: "standard",
-    name: "Standard",
-    price: "$49",
-    period: "one-time",
-    description: "Full course access for serious learners",
-    features: [
-      "All 6 modules (30+ lessons)",
-      "All quizzes & final exam",
-      "E-certificate on completion",
-      "4 guided projects",
-      "Capstone project review",
-      "Forum access",
-      "Lifetime access",
-    ],
-    cta: "Get Standard",
-    popular: true,
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    price: "$149",
-    period: "one-time",
-    description: "For those who want mentorship & extras",
-    features: [
-      "Everything in Standard",
-      "1-on-1 mentoring (4 sessions)",
-      "GPU compute for ML lessons",
-      "Priority support",
-      "Career guidance session",
-      "LinkedIn recommendation",
-      "Early access to new content",
-    ],
-    cta: "Get Premium",
-    popular: false,
-  },
-];
+const PAYSTACK_ENABLED =
+  process.env.NEXT_PUBLIC_PAYSTACK_ENABLED === "true";
+
+const plans = (["free", "standard", "premium"] as PlanId[]).map((id) => ({
+  id,
+  name: PLANS[id].name,
+  price: PLANS[id].price === 0 ? "$0" : `$${PLANS[id].price}`,
+  period: id === "free" ? "forever" : "one-time",
+  description: PLANS[id].description,
+  features: PLANS[id].features,
+  cta: id === "free" ? "Start Free" : `Get ${PLANS[id].name}`,
+  popular: PLANS[id].popular ?? false,
+}));
 
 export default function PricingPage() {
   const router = useRouter();
@@ -77,8 +37,28 @@ export default function PricingPage() {
       return;
     }
 
-    // Go directly to EFT (Paystack disabled until verified)
     trackEvent("checkout_started", { plan: planId });
+
+    if (PAYSTACK_ENABLED) {
+      setLoading(planId);
+      try {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ planId }),
+        });
+        const data = await res.json();
+        if (res.ok && data.authorizationUrl) {
+          window.location.href = data.authorizationUrl;
+          return;
+        }
+      } catch {
+        // Fall through to EFT
+      }
+      setLoading(null);
+    }
+
     router.push(`/checkout/eft?plan=${planId}`);
   }
 

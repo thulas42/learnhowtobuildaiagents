@@ -1,47 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-
-const SUBSCRIPTIONS_FILE = path.join(process.cwd(), "data", "subscriptions.json");
-const NOTIFICATIONS_FILE = path.join(process.cwd(), "data", "notifications.json");
+import { DATA_FILES, readJsonFile } from "@/lib/data-store";
+import { adminUnauthorizedResponse, isAdminAuthorized } from "@/lib/admin-auth";
 
 /**
  * GET /api/admin/sales — Get all sales data
- * Protected by a simple admin key
  */
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const key = searchParams.get("key");
+  try {
+    if (!isAdminAuthorized(request)) {
+      return adminUnauthorizedResponse();
+    }
 
-  // Simple admin auth — check against ADMIN_SECRET env var
-  if (key !== process.env.ADMIN_SECRET) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const subscriptions = readJsonFile<Record<string, unknown>[]>(
+      DATA_FILES.subscriptions,
+      []
+    );
+
+    const notifications = readJsonFile<Record<string, unknown>[]>(
+      DATA_FILES.notifications,
+      []
+    );
+
+    const totalRevenue = subscriptions.reduce(
+      (sum, s) => sum + ((s.amountPaid as number) || 0),
+      0
+    );
+    const standardCount = subscriptions.filter(
+      (s) => s.plan === "standard"
+    ).length;
+    const premiumCount = subscriptions.filter(
+      (s) => s.plan === "premium"
+    ).length;
+
+    return NextResponse.json({
+      stats: {
+        totalSales: subscriptions.length,
+        totalRevenue: totalRevenue / 100,
+        standardSales: standardCount,
+        premiumSales: premiumCount,
+      },
+      recentSales: subscriptions.slice(-20).reverse(),
+      notifications: notifications.slice(-20).reverse(),
+    });
+  } catch (error) {
+    console.error("Admin sales error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
-
-  const subscriptions = fs.existsSync(SUBSCRIPTIONS_FILE)
-    ? JSON.parse(fs.readFileSync(SUBSCRIPTIONS_FILE, "utf-8"))
-    : [];
-
-  const notifications = fs.existsSync(NOTIFICATIONS_FILE)
-    ? JSON.parse(fs.readFileSync(NOTIFICATIONS_FILE, "utf-8"))
-    : [];
-
-  // Calculate stats
-  const totalRevenue = subscriptions.reduce(
-    (sum: number, s: any) => sum + (s.amountPaid || 0),
-    0
-  );
-  const standardCount = subscriptions.filter((s: any) => s.plan === "standard").length;
-  const premiumCount = subscriptions.filter((s: any) => s.plan === "premium").length;
-
-  return NextResponse.json({
-    stats: {
-      totalSales: subscriptions.length,
-      totalRevenue: totalRevenue / 100, // Convert from cents
-      standardSales: standardCount,
-      premiumSales: premiumCount,
-    },
-    recentSales: subscriptions.slice(-20).reverse(),
-    notifications: notifications.slice(-20).reverse(),
-  });
 }

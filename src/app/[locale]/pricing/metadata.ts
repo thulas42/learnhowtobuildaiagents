@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Pricing — AI Agent Academy | Free, Standard & Premium Plans",
-  description:
-    "Start learning AI agent development for free. Upgrade to Standard ($49) for full access or Premium ($149) for mentoring. One-time payment, lifetime access. PPP pricing available worldwide.",
-  openGraph: {
-    title: "AI Agent Academy Pricing — Start Free, Upgrade Anytime",
+type Props = { params: { locale: string } };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return pageMetadata({
+    title: "Pricing — Free, Standard ($49) & Premium AI Agent Course",
     description:
-      "Free tier includes Module 1. Standard ($49) unlocks all 6 modules + certificate. Premium ($149) adds 1-on-1 mentoring. 30-day money-back guarantee.",
-  },
-};
+      "Start learning AI agent development free (Module 1). Standard plan: all 6 modules, quizzes, certificate — $49 one-time. Premium adds mentoring. Lifetime access.",
+    path: "/pricing",
+    locale: params.locale,
+    keywords: [
+      "AI agent course price",
+      "free AI agent course",
+      "LangChain course cost",
+    ],
+  });
+}

@@ -1,4 +1,15 @@
-import type { QuizQuestion } from "@/components/quiz/QuizPlayer";
+import type { DiagramData, QuestionType } from "@/data/question-bank";
+
+export interface LessonQuizQuestion {
+  id: string;
+  type: QuestionType;
+  question: string;
+  codeSnippet?: string;
+  diagram?: DiagramData;
+  options: { id: string; text: string }[];
+  correctAnswers: string[];
+  explanation: string;
+}
 
 export interface LessonData {
   number: string;
@@ -6,7 +17,7 @@ export interface LessonData {
   module: { number: number; title: string };
   content: string;
   quiz: {
-    questions: QuizQuestion[];
+    questions: LessonQuizQuestion[];
     passingScore: number;
   };
   nextLesson?: { slug: string; title: string };

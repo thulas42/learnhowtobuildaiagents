@@ -17,7 +17,8 @@ dist/
 .env.production.local
 
 # Data (local file-based storage)
-data/
+data/*
+!data/.gitkeep
 
 # Debug
 npm-debug.log*
@@ -36,6 +37,10 @@ Thumbs.db
 
 # Prisma
 prisma/migrations/
+
+# Cypress artifacts (keep gumroad-ready exports if needed)
+cypress/screenshots/
+cypress/videos/
 
 # Generated
 *.tsbuildinfo

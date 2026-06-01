@@ -1,37 +1,47 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { CheckCircle, XCircle, ArrowRight, RotateCcw, Shuffle } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  ArrowRight,
+  RotateCcw,
+  Shuffle,
+  Loader2,
+} from "lucide-react";
 import { DiagramRenderer } from "@/components/quiz/DiagramRenderer";
 import type { DiagramData } from "@/data/question-bank";
 
-export interface QuizQuestion {
+export interface ClientQuizQuestion {
   id: string;
   type: "multiple_choice" | "multiple_select" | "code_comprehension";
   question: string;
-  codeSnippet?: string;
-  diagram?: DiagramData;
+  codeSnippet?: string | null;
+  diagram?: DiagramData | null;
   options: { id: string; text: string }[];
-  correctAnswers: string[];
-  explanation: string;
 }
 
-interface ShuffledQuestion extends QuizQuestion {
+interface ShuffledQuestion extends ClientQuizQuestion {
   shuffledOptions: { id: string; text: string; displayLabel: string }[];
 }
 
 interface QuizPlayerProps {
   title: string;
-  questions: QuizQuestion[];
+  lessonId: string;
   passingScore: number;
-  questionsPerAttempt?: number; // How many questions to randomly select per attempt
-  onComplete: (score: number, passed: boolean) => void;
+  questionsPerAttempt?: number;
+  onComplete: (
+    score: number,
+    passed: boolean,
+    gradedAnswers: {
+      questionId: string;
+      selectedOptions: string[];
+      correct: boolean;
+    }[]
+  ) => void;
 }
 
-/**
- * Fisher-Yates shuffle algorithm for true randomization
- */
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -41,76 +51,82 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-/**
- * Randomly select N items from an array
- */
-function selectRandom<T>(array: T[], count: number): T[] {
-  const shuffled = shuffleArray(array);
-  return shuffled.slice(0, Math.min(count, shuffled.length));
-}
-
-/**
- * Prepare questions: randomly select from pool and shuffle option positions
- */
-function prepareQuestions(
-  allQuestions: QuizQuestion[],
-  questionsPerAttempt: number
-): ShuffledQuestion[] {
+function prepareQuestions(questions: ClientQuizQuestion[]): ShuffledQuestion[] {
   const displayLabels = ["A", "B", "C", "D", "E", "F"];
-
-  // Randomly select questions from the pool
-  const selectedQuestions = selectRandom(allQuestions, questionsPerAttempt);
-
-  // Shuffle the order of selected questions
-  const shuffledQuestions = shuffleArray(selectedQuestions);
-
-  // For each question, shuffle the answer options
-  return shuffledQuestions.map((question) => {
+  return shuffleArray(questions).map((question) => {
     const shuffledOptions = shuffleArray(question.options).map((opt, index) => ({
       ...opt,
       displayLabel: displayLabels[index] || String(index + 1),
     }));
-
-    return {
-      ...question,
-      shuffledOptions,
-    };
+    return { ...question, shuffledOptions };
   });
 }
 
 export function QuizPlayer({
   title,
-  questions,
+  lessonId,
   passingScore,
-  questionsPerAttempt,
+  questionsPerAttempt = 5,
   onComplete,
 }: QuizPlayerProps) {
   const t = useTranslations("quiz");
-  const [attemptKey, setAttemptKey] = useState(0); // Forces re-randomization on retry
-
-  // Memoize the randomized questions per attempt
-  // Re-randomizes when attemptKey changes (on retry)
-  const preparedQuestions = useMemo(
-    () => prepareQuestions(questions, questionsPerAttempt || questions.length),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [questions, questionsPerAttempt, attemptKey]
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [attemptKey, setAttemptKey] = useState(0);
+  const [preparedQuestions, setPreparedQuestions] = useState<ShuffledQuestion[]>(
+    []
   );
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
-  const [results, setResults] = useState<boolean[]>([]);
+  const [questionFeedback, setQuestionFeedback] = useState<{
+    correct: boolean;
+    explanation: string;
+  } | null>(null);
+  const [recordedAnswers, setRecordedAnswers] = useState<
+    { questionId: string; selectedOptions: string[] }[]
+  >([]);
   const [showResults, setShowResults] = useState(false);
+  const [finalScore, setFinalScore] = useState(0);
+  const [finalPassed, setFinalPassed] = useState(false);
+  const [grading, setGrading] = useState(false);
+
+  const loadQuestions = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await fetch(
+        `/api/questions?lessonId=${encodeURIComponent(lessonId)}&count=${questionsPerAttempt}`
+      );
+      if (!res.ok) {
+        throw new Error("Failed to load questions");
+      }
+      const data = await res.json();
+      if (!data.questions?.length) {
+        throw new Error("No questions available");
+      }
+      setPreparedQuestions(prepareQuestions(data.questions));
+      setCurrentIndex(0);
+      setSelectedAnswers([]);
+      setSubmitted(false);
+      setQuestionFeedback(null);
+      setRecordedAnswers([]);
+      setShowResults(false);
+    } catch {
+      setLoadError("Could not load quiz questions. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [lessonId, questionsPerAttempt]);
+
+  useEffect(() => {
+    loadQuestions();
+  }, [loadQuestions, attemptKey]);
 
   const currentQuestion = preparedQuestions[currentIndex];
 
-  const isCorrect = submitted && currentQuestion
-    ? currentQuestion.correctAnswers.every((a) => selectedAnswers.includes(a)) &&
-      selectedAnswers.every((a) => currentQuestion.correctAnswers.includes(a))
-    : null;
-
   function handleSelect(optionId: string) {
-    if (submitted) return;
+    if (submitted || !currentQuestion) return;
 
     if (currentQuestion.type === "multiple_select") {
       setSelectedAnswers((prev) =>
@@ -123,14 +139,88 @@ export function QuizPlayer({
     }
   }
 
-  function handleSubmit() {
-    if (selectedAnswers.length === 0) return;
-    setSubmitted(true);
-    setResults((prev) => [
-      ...prev,
-      currentQuestion.correctAnswers.every((a) => selectedAnswers.includes(a)) &&
-        selectedAnswers.every((a) => currentQuestion.correctAnswers.includes(a)),
-    ]);
+  async function handleSubmit() {
+    if (!currentQuestion || selectedAnswers.length === 0) return;
+
+    setGrading(true);
+    try {
+      const res = await fetch("/api/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonId,
+          answers: [
+            {
+              questionId: currentQuestion.id,
+              selectedOptions: selectedAnswers,
+            },
+          ],
+        }),
+      });
+
+      if (!res.ok) throw new Error("Grading failed");
+
+      const data = await res.json();
+      const graded = data.gradedAnswers[0];
+      setQuestionFeedback({
+        correct: graded.correct,
+        explanation: graded.explanation,
+      });
+      setRecordedAnswers((prev) => [
+        ...prev,
+        {
+          questionId: currentQuestion.id,
+          selectedOptions: [...selectedAnswers],
+        },
+      ]);
+      setSubmitted(true);
+    } catch {
+      setQuestionFeedback({
+        correct: false,
+        explanation: "Could not grade this answer. Please try again.",
+      });
+      setSubmitted(true);
+    } finally {
+      setGrading(false);
+    }
+  }
+
+  async function finishQuiz(allAnswers: { questionId: string; selectedOptions: string[] }[]) {
+    setGrading(true);
+    try {
+      const res = await fetch("/api/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lessonId, answers: allAnswers }),
+      });
+
+      if (!res.ok) throw new Error("Grading failed");
+
+      const data = await res.json();
+      const passed = data.score >= passingScore;
+      setFinalScore(data.score);
+      setFinalPassed(passed);
+      setShowResults(true);
+      onComplete(
+        data.score,
+        passed,
+        data.gradedAnswers.map(
+          (a: {
+            questionId: string;
+            selectedOptions: string[];
+            correct: boolean;
+          }) => ({
+            questionId: a.questionId,
+            selectedOptions: a.selectedOptions,
+            correct: a.correct,
+          })
+        )
+      );
+    } catch {
+      setLoadError("Could not submit quiz. Please try again.");
+    } finally {
+      setGrading(false);
+    }
   }
 
   function handleNext() {
@@ -138,42 +228,47 @@ export function QuizPlayer({
       setCurrentIndex((prev) => prev + 1);
       setSelectedAnswers([]);
       setSubmitted(false);
+      setQuestionFeedback(null);
     } else {
-      // Quiz complete
-      const correctCount = [...results].filter(Boolean).length;
-      const score = Math.round((correctCount / preparedQuestions.length) * 100);
-      const passed = score >= passingScore;
-      setShowResults(true);
-      onComplete(score, passed);
+      finishQuiz(recordedAnswers);
     }
   }
 
   function handleRetry() {
-    // Increment attemptKey to trigger re-randomization of questions and options
     setAttemptKey((prev) => prev + 1);
-    setCurrentIndex(0);
-    setSelectedAnswers([]);
-    setSubmitted(false);
-    setResults([]);
-    setShowResults(false);
   }
 
-  // Results screen
-  if (showResults) {
-    const correctCount = results.filter(Boolean).length;
-    const score = Math.round((correctCount / preparedQuestions.length) * 100);
-    const passed = score >= passingScore;
+  if (loading) {
+    return (
+      <div className="card max-w-2xl mx-auto text-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary-600" />
+        <p className="mt-4 text-gray-500">Loading quiz...</p>
+      </div>
+    );
+  }
 
+  if (loadError) {
+    return (
+      <div className="card max-w-2xl mx-auto text-center py-8">
+        <p className="text-red-600 mb-4">{loadError}</p>
+        <button onClick={loadQuestions} className="btn-primary">
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (showResults) {
     return (
       <div className="card max-w-2xl mx-auto text-center">
         <div
           className={`w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center ${
-            passed
+            finalPassed
               ? "bg-green-100 dark:bg-green-900/30"
               : "bg-red-100 dark:bg-red-900/30"
           }`}
         >
-          {passed ? (
+          {finalPassed ? (
             <CheckCircle className="h-10 w-10 text-green-600" />
           ) : (
             <XCircle className="h-10 w-10 text-red-600" />
@@ -183,35 +278,21 @@ export function QuizPlayer({
         <h2 className="text-2xl font-bold mb-2">{t("result")}</h2>
         <p
           className={`text-lg mb-2 ${
-            passed ? "text-green-600" : "text-red-600"
+            finalPassed ? "text-green-600" : "text-red-600"
           }`}
         >
-          {passed ? t("passed") : t("failed")}
+          {finalPassed ? t("passed") : t("failed")}
         </p>
-        <p className="text-gray-600 dark:text-gray-400 mb-2">
-          {t("score", { score })} • {t("passingScore", { score: passingScore })}
-        </p>
-        <p className="text-sm text-gray-500 mb-6">
-          {correctCount} / {preparedQuestions.length} correct
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
+          {t("score", { score: finalScore })} •{" "}
+          {t("passingScore", { score: passingScore })}
         </p>
 
-        <div className="flex justify-center gap-4">
-          {!passed && (
-            <button onClick={handleRetry} className="btn-secondary gap-2">
-              <RotateCcw className="h-4 w-4" />
-              {t("tryAgain")}
-            </button>
-          )}
-          {passed && (
-            <button onClick={handleRetry} className="btn-secondary gap-2">
-              <Shuffle className="h-4 w-4" />
-              Practice Again
-            </button>
-          )}
-          <button className="btn-primary">{t("reviewAnswers")}</button>
-        </div>
+        <button onClick={handleRetry} className="btn-secondary gap-2">
+          <RotateCcw className="h-4 w-4" />
+          {t("tryAgain")}
+        </button>
 
-        {/* Randomization notice */}
         <p className="text-xs text-gray-400 mt-4 flex items-center justify-center gap-1">
           <Shuffle className="h-3 w-3" />
           Questions and answers are randomized each attempt
@@ -223,8 +304,7 @@ export function QuizPlayer({
   if (!currentQuestion) return null;
 
   return (
-    <div className="card max-w-2xl mx-auto">
-      {/* Header */}
+    <div className="card max-w-2xl mx-auto" data-testid="quiz-player">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">{title}</h2>
         <span className="text-sm text-gray-500">
@@ -235,7 +315,6 @@ export function QuizPlayer({
         </span>
       </div>
 
-      {/* Progress */}
       <div className="progress-bar mb-6">
         <div
           className="progress-bar-fill"
@@ -245,36 +324,30 @@ export function QuizPlayer({
         />
       </div>
 
-      {/* Question */}
       <div className="mb-6">
         <p className="text-lg font-medium mb-4">{currentQuestion.question}</p>
 
-        {/* Code snippet */}
         {currentQuestion.codeSnippet && (
           <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto mb-4 font-mono">
             <code>{currentQuestion.codeSnippet}</code>
           </pre>
         )}
 
-        {/* Diagram */}
         {currentQuestion.diagram && (
           <DiagramRenderer diagram={currentQuestion.diagram} />
         )}
 
-        {/* Options (shuffled) */}
         <div className="space-y-3">
           {currentQuestion.shuffledOptions.map((option) => {
             const isSelected = selectedAnswers.includes(option.id);
-            const isCorrectOption =
-              currentQuestion.correctAnswers.includes(option.id);
 
             let optionStyle =
               "border-gray-200 dark:border-gray-700 hover:border-primary-300";
-            if (submitted) {
-              if (isCorrectOption) {
+            if (submitted && questionFeedback) {
+              if (questionFeedback.correct && isSelected) {
                 optionStyle =
                   "border-green-500 bg-green-50 dark:bg-green-900/20";
-              } else if (isSelected && !isCorrectOption) {
+              } else if (!questionFeedback.correct && isSelected) {
                 optionStyle = "border-red-500 bg-red-50 dark:bg-red-900/20";
               }
             } else if (isSelected) {
@@ -285,8 +358,10 @@ export function QuizPlayer({
             return (
               <button
                 key={option.id}
+                type="button"
+                data-testid={`quiz-option-${option.id}`}
                 onClick={() => handleSelect(option.id)}
-                disabled={submitted}
+                disabled={submitted || grading}
                 className={`w-full text-start p-4 rounded-lg border-2 transition-all ${optionStyle}`}
               >
                 <div className="flex items-center gap-3">
@@ -301,25 +376,23 @@ export function QuizPlayer({
         </div>
       </div>
 
-      {/* Explanation */}
-      {submitted && (
+      {submitted && questionFeedback && (
         <div
           className={`p-4 rounded-lg mb-6 ${
-            isCorrect
+            questionFeedback.correct
               ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
               : "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
           }`}
         >
           <p className="text-sm font-medium mb-1">
-            {isCorrect ? t("correct") : t("incorrect")}
+            {questionFeedback.correct ? t("correct") : t("incorrect")}
           </p>
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            {currentQuestion.explanation}
+            {questionFeedback.explanation}
           </p>
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex items-center justify-between">
         <p className="text-xs text-gray-400 flex items-center gap-1">
           <Shuffle className="h-3 w-3" />
@@ -327,14 +400,26 @@ export function QuizPlayer({
         </p>
         {!submitted ? (
           <button
+            type="button"
+            data-testid="quiz-submit"
             onClick={handleSubmit}
-            disabled={selectedAnswers.length === 0}
+            disabled={selectedAnswers.length === 0 || grading}
             className="btn-primary"
           >
-            {t("submit")}
+            {grading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              t("submit")
+            )}
           </button>
         ) : (
-          <button onClick={handleNext} className="btn-primary gap-2">
+          <button
+            type="button"
+            data-testid="quiz-next"
+            onClick={handleNext}
+            disabled={grading}
+            className="btn-primary gap-2"
+          >
             {currentIndex < preparedQuestions.length - 1
               ? t("next")
               : t("finish")}

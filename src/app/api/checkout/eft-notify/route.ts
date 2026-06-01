@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import {
+  DATA_FILES,
+  generateId,
+  readJsonFile,
+  writeJsonFile,
+} from "@/lib/data-store";
 
-const PENDING_FILE = path.join(process.cwd(), "data", "pending-eft.json");
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "thulanizondo42@gmail.com";
-
-function ensureDataDir() {
-  const dir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
 
 /**
  * POST /api/checkout/eft-notify
@@ -24,10 +20,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    ensureDataDir();
-
     const entry = {
-      id: `eft_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: generateId("eft"),
       email,
       plan: plan || "standard",
       amount: amount || 899,
@@ -35,12 +29,12 @@ export async function POST(request: NextRequest) {
       submittedAt: new Date().toISOString(),
     };
 
-    // Save pending payment
-    const pending = fs.existsSync(PENDING_FILE)
-      ? JSON.parse(fs.readFileSync(PENDING_FILE, "utf-8"))
-      : [];
+    const pending = readJsonFile<Record<string, unknown>[]>(
+      DATA_FILES.pendingEft,
+      []
+    );
     pending.push(entry);
-    fs.writeFileSync(PENDING_FILE, JSON.stringify(pending, null, 2));
+    writeJsonFile(DATA_FILES.pendingEft, pending);
 
     // Send email notification to admin
     if (process.env.RESEND_API_KEY) {

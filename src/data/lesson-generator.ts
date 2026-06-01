@@ -66,3 +66,35 @@ export function getLessonNav(slug: string): { prev?: { slug: string; title: stri
 export function getLessonMeta(slug: string) {
   return allLessonsMeta.find(l => l.slug === slug) || null;
 }
+
+export interface CourseModuleCatalog {
+  moduleNumber: number;
+  title: string;
+  lessons: { slug: string; number: string; title: string }[];
+}
+
+/**
+ * Course catalog grouped by module (single source for listing pages).
+ */
+export function getCourseCatalog(): CourseModuleCatalog[] {
+  const modules = new Map<number, CourseModuleCatalog>();
+
+  for (const lesson of allLessonsMeta) {
+    if (!modules.has(lesson.moduleNumber)) {
+      modules.set(lesson.moduleNumber, {
+        moduleNumber: lesson.moduleNumber,
+        title: lesson.moduleTitle,
+        lessons: [],
+      });
+    }
+    modules.get(lesson.moduleNumber)!.lessons.push({
+      slug: lesson.slug,
+      number: lesson.number,
+      title: lesson.title,
+    });
+  }
+
+  return Array.from(modules.values()).sort(
+    (a, b) => a.moduleNumber - b.moduleNumber
+  );
+}

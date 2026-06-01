@@ -26,7 +26,9 @@ export default function AdminEftPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/admin/eft?key=${encodeURIComponent(key)}`);
+      const res = await fetch("/api/admin/eft", {
+        headers: { Authorization: `Bearer ${key}` },
+      });
       if (!res.ok) {
         setError("Unauthorized. Check your admin key.");
         setData(null);
@@ -46,9 +48,11 @@ export default function AdminEftPage() {
     try {
       const res = await fetch("/api/admin/eft", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${key}`,
+        },
         body: JSON.stringify({
-          key,
           eftId: entry.id,
           email: entry.email,
           plan: entry.plan,

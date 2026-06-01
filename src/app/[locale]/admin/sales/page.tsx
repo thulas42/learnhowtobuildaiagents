@@ -50,9 +50,10 @@ export default function AdminSalesPage() {
     setLoading(true);
     setError("");
     try {
+      const headers = { Authorization: `Bearer ${key}` };
       const [salesRes, statsRes] = await Promise.all([
-        fetch(`/api/admin/sales?key=${encodeURIComponent(key)}`),
-        fetch(`/api/admin/stats?key=${encodeURIComponent(key)}`),
+        fetch("/api/admin/sales", { headers }),
+        fetch("/api/admin/stats", { headers }),
       ]);
       if (!salesRes.ok) {
         setError("Unauthorized. Check your admin key.");

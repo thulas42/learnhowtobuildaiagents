@@ -1,5 +1,5 @@
-import { useTranslations } from "next-intl";
 import { Header } from "@/components/layout/Header";
+import { HomeStructuredData } from "@/components/seo/HomeStructuredData";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { TechStack } from "@/components/landing/TechStack";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
@@ -12,6 +12,7 @@ import { RedirectIfLoggedIn } from "@/components/auth/RedirectIfLoggedIn";
 export default function HomePage() {
   return (
     <main>
+      <HomeStructuredData />
       <RedirectIfLoggedIn />
       <Header />
       <HeroSection />
